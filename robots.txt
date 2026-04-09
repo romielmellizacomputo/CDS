@@ -1,0 +1,437 @@
+# ======================================================================
+# robots.txt — GentleJobs
+# The All-in-One Global Career & Workforce Platform
+# https://gentlejobs.com
+#
+# Last Updated: 2026-03-16
+# Next Review:  2026-06-16
+# ======================================================================
+
+
+# ── DEFAULT: ALL CRAWLERS ──────────────────────────────────────────────
+# Allow everything by default. Specific sensitive paths are blocked below.
+
+User-agent: *
+Allow: /
+
+# Block sensitive server/infrastructure paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /cache/
+Disallow: /logs/
+Disallow: /config/
+Disallow: /database/
+Disallow: /backup/
+
+# Block file types that should never be indexed
+# NOTE: manifest.json and sitemap.xml are explicitly allowed below
+# and those Allow rules take precedence over these Disallow patterns
+Disallow: /*.log$
+Disallow: /*.sql$
+Disallow: /*.env$
+Disallow: /*.bak$
+Disallow: /*.tmp$
+
+# Block authenticated-only portal routes
+# Confirmed against MainContent.js — all wrapped in ProtectedRoute
+Disallow: /company/employment/
+Disallow: /company/administration/
+Disallow: /company/operations/
+Disallow: /company/register
+Disallow: /company/recruitment
+Disallow: /company/forms
+Disallow: /company/overview
+Disallow: /personal
+Disallow: /jobs/applications
+Disallow: /jobs/contracts
+Disallow: /account-settings
+Disallow: /account/resume
+Disallow: /saved-items
+Disallow: /notifications
+Disallow: /nearby
+Disallow: /chat-space
+Disallow: /chat-support
+Disallow: /companies
+Disallow: /companies/
+Disallow: /partners
+Disallow: /partners/
+Disallow: /page
+Disallow: /page/
+Disallow: /admin/
+Disallow: /update-company/
+Disallow: /register-company
+
+# Block internal search result pages (thin/duplicate content)
+# IMPORTANT: /jobs and /jobs?q= remain allowed — these are your
+# main public pages. Only filter/sort permutations are blocked.
+Disallow: /search
+Disallow: /results
+
+# Block payment and billing paths
+Disallow: /payment/
+Disallow: /billing/
+Disallow: /invoice/
+Disallow: /receipt/
+
+# Block development and testing environments
+Disallow: /test/
+Disallow: /dev/
+Disallow: /staging/
+Disallow: /beta/
+
+# Block internal API and utility paths
+Disallow: /ajax/
+Disallow: /webhook/
+Disallow: /cron/
+Disallow: /api-docs/
+Disallow: /swagger/
+Disallow: /graphql/
+Disallow: /embed/
+Disallow: /iframe/
+Disallow: /widget/external/
+Disallow: /app-deeplink/
+Disallow: /mobile-redirect/
+
+# Block CMS and server admin paths (precautionary)
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /administrator/
+Disallow: /phpmyadmin/
+Disallow: /phpMyAdmin/
+Disallow: /cgi-bin/
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /build/
+Disallow: /dist/development/
+
+# Block user private drafts
+Disallow: /user/*/drafts/
+Disallow: /user/*/private/
+
+# Block duplicate content from URL tracking parameters
+# FIXED: Previous version had overly broad rules like /*?*&* which
+# accidentally blocked paginated job search URLs. These targeted
+# rules block only known tracking/duplicate-content parameters.
+Disallow: /*?utm_source=
+Disallow: /*?utm_medium=
+Disallow: /*?utm_campaign=
+Disallow: /*?utm_content=
+Disallow: /*?utm_term=
+Disallow: /*?fbclid=
+Disallow: /*?gclid=
+Disallow: /*?PHPSESSID=
+Disallow: /*?sessionid=
+Disallow: /*?jsessionid=
+Disallow: /*?print=
+Disallow: /*?pdf=
+
+# Allow critical SEO and PWA files explicitly
+# These override any broader Disallow patterns above
+Allow: /sitemap.xml
+Allow: /sitemap-index.xml
+Allow: /sitemap-jobs.xml
+Allow: /sitemap-companies.xml
+Allow: /sitemap-pages.xml
+Allow: /sitemap-events.xml
+Allow: /robots.txt
+Allow: /favicon.ico
+Allow: /manifest.json
+Allow: /.well-known/
+
+# Allow all public static assets
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /img/
+Allow: /icons/
+Allow: /assets/
+Allow: /static/
+Allow: /media/
+Allow: /fonts/
+Allow: /styles/
+
+
+# ── GOOGLE ────────────────────────────────────────────────────────────
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /img/
+Allow: /media/
+Allow: /assets/
+Allow: /icons/
+Crawl-delay: 1
+
+User-agent: Googlebot-Mobile
+Allow: /
+Crawl-delay: 1
+
+User-agent: AdsBot-Google
+Allow: /
+
+User-agent: Google-InspectionTool
+Allow: /
+
+
+# ── OTHER MAJOR SEARCH ENGINES ────────────────────────────────────────
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Applebot
+Allow: /
+Crawl-delay: 2
+
+
+# ── SOCIAL MEDIA CRAWLERS ─────────────────────────────────────────────
+# These crawlers generate link previews when your URLs are shared.
+# Blocking them breaks how your links look on Facebook, LinkedIn, etc.
+
+User-agent: facebookexternalhit
+Allow: /
+Crawl-delay: 1
+
+User-agent: Twitterbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: LinkedInBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: WhatsApp
+Allow: /
+Crawl-delay: 1
+
+User-agent: TelegramBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Discordbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slackbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Pinterest
+Allow: /
+Crawl-delay: 1
+
+
+# ── AI SEARCH ASSISTANTS ──────────────────────────────────────────────
+# NOTE: Perplexity and similar AI search tools are kept here as allowed
+# because they actively drive referral traffic from AI-assisted searches.
+# Users finding your platform via AI search is a meaningful traffic source.
+# Block only the pure training crawlers below, not the AI search assistants.
+
+User-agent: PerplexityBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: YouBot
+Allow: /
+Crawl-delay: 2
+
+
+# ── AI TRAINING CRAWLERS (BLOCKED) ───────────────────────────────────
+# These crawlers collect data for training AI models, not for indexing
+# or sending users to your site. Block them to protect your content.
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: AI2Bot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+
+# ── SEO TOOL CRAWLERS (BLOCKED) ───────────────────────────────────────
+# These crawlers don't send traffic — they only collect data for
+# competitor intelligence tools. Blocking them reduces server load
+# and prevents competitors from tracking your content changes.
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /
+
+User-agent: SeznamBot
+Disallow: /
+
+User-agent: Exabot
+Disallow: /
+
+User-agent: linkdexbot
+Disallow: /
+
+User-agent: magpie-crawler
+Disallow: /
+
+
+# ── SCRAPERS & EMAIL HARVESTERS (BLOCKED) ─────────────────────────────
+
+User-agent: EmailCollector
+Disallow: /
+
+User-agent: EmailSiphon
+Disallow: /
+
+User-agent: EmailWolf
+Disallow: /
+
+User-agent: WebBandit
+Disallow: /
+
+User-agent: ExtractorPro
+Disallow: /
+
+User-agent: SiteSnagger
+Disallow: /
+
+User-agent: HTTrack
+Disallow: /
+
+User-agent: WebCopier
+Disallow: /
+
+User-agent: WebStripper
+Disallow: /
+
+User-agent: WebZip
+Disallow: /
+
+User-agent: Teleport
+Disallow: /
+
+User-agent: TeleportPro
+Disallow: /
+
+User-agent: Offline Explorer
+Disallow: /
+
+User-agent: Zeus
+Disallow: /
+
+User-agent: larbin
+Disallow: /
+
+User-agent: DomainCrawler
+Disallow: /
+
+User-agent: Genieo
+Disallow: /
+
+User-agent: RepoMonkey
+Disallow: /
+
+User-agent: CheeseBot
+Disallow: /
+
+User-agent: ZyBORG
+Disallow: /
+
+User-agent: NPBot
+Disallow: /
+
+User-agent: Download Ninja
+Disallow: /
+
+User-agent: grub-client
+Disallow: /
+
+User-agent: k2spider
+Disallow: /
+
+
+# ── WEB ARCHIVE (HEAVY DELAY) ─────────────────────────────────────────
+# FIXED: ia_archiver appeared twice with conflicting rules previously.
+# Single entry here with a long crawl delay.
+
+User-agent: ia_archiver
+Crawl-delay: 86400
+
+User-agent: archive.org_bot
+Crawl-delay: 86400
+
+
+# ── SITEMAPS ──────────────────────────────────────────────────────────
+
+Sitemap: https://gentlejobs.com/sitemap.xml
+Sitemap: https://gentlejobs.com/sitemap-index.xml
+Sitemap: https://gentlejobs.com/sitemap-jobs.xml
+Sitemap: https://gentlejobs.com/sitemap-companies.xml
+Sitemap: https://gentlejobs.com/sitemap-pages.xml
+Sitemap: https://gentlejobs.com/sitemap-events.xml
+
+Host: https://gentlejobs.com
+
+# ======================================================================
