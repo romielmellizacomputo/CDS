@@ -1,0 +1,58 @@
+name: Update Test Cases In Portal (Optimized)
+on:
+  schedule:
+    # Run once every 6 hours to process all URLs
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+jobs:
+  update-portal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350  # ~5.8 hours max
+    
+    steps:
+      - name: Checkout Private Repo (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Run optimized update script
+        env:
+          CDS_PORTAL_SPREADSHEET_ID: ${{ secrets.CDS_PORTAL_SPREADSHEET_ID }}
+          CDS_PORTALS_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_PORTALS_SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "=========================================="
+          echo "🚀 Starting optimized batch processing"
+          echo "=========================================="
+          echo "Strategy: Collect all data first, then batch write"
+          echo "This will process ALL URLs in a single run"
+          echo "=========================================="
+          node automated-portals/update-existing-test-cases.js
+          
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-logs-run-${{ github.run_number }}
+          path: |
+            *.log
+            automated-portals/*.log
+          retention-days: 7
+          
+      - name: Upload logs on success
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: success-logs-run-${{ github.run_number }}
+          path: |
+            *.log
+            automated-portals/*.log
+          retention-days: 3
