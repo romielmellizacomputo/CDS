@@ -1,0 +1,34 @@
+name: Fetch Additional Issue Info
+on:
+  schedule:
+  - cron: '0 17 * * *'  # Runs every day at 1 AM Philippine Time (17:00 UTC)
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_CONFIG: ${{ secrets.PROJECT_CONFIG }}  # ✅ Added this line
+    steps:
+      - name: Checkout Private Repo (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: |
+          npm install
+          # If you have a package-lock.json, you can use `npm ci` instead
+      - name: Run additional issue data script
+        env:
+          GITLAB_URL: ${{ secrets.GITLAB_URL }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
+          SHEET_SYNC_SAJ: ${{ secrets.SHEET_SYNC_SAJ }}
+          PROJECT_CONFIG: ${{ secrets.PROJECT_CONFIG }}  # ✅ Required here too if overridden
+        run: |
+          node SheetSync/additional-issue-data.js
