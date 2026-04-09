@@ -1,0 +1,36 @@
+name: Run Test Case Update Requests
+on:
+  workflow_dispatch:  # allows manual triggering
+  schedule:
+    - cron: '*/5 * * * *'  # every 5 minutes
+jobs:
+  update-sheet:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Private Repo (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      - name: Verify folder contents (for debugging)
+        run: |
+          ls -la automated-portals
+      - name: Check runner IP address
+        run: |
+          echo "Runner IP Address:"
+          curl ifconfig.me
+      - name: Run update script
+        env:
+          CDS_PORTALS_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_PORTALS_SERVICE_ACCOUNT_JSON }}
+          CDS_PORTAL_SPREADSHEET_ID: ${{ secrets.CDS_PORTAL_SPREADSHEET_ID }}
+        run: |
+          cd automated-portals
+          ls -la
+          node execute-update-request.js
