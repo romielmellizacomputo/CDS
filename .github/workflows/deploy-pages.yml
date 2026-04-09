@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Private Source (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+          path: source  # checks out private repo into /source folder
+
+      - name: Checkout cds-engine (target)
+        uses: actions/checkout@v4
+        with:
+          path: target  # checks out cds-engine into /target folder
+
+      - name: Copy web files from private repo to cds-engine
+        run: |
+          cp -r source/src/* target/  
+          # adjust path depending on where your html/js lives in centralized-docs-system
+
+      - name: Commit and push to cds-engine
+        run: |
+          cd target
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Deploy latest from centralized-docs-system" || echo "No changes"
+          git push
