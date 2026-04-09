@@ -5,7 +5,7 @@ on:
       - main
   workflow_dispatch:
   repository_dispatch:
-    types: [deploy-pages]  # ← add this
+    types: [deploy-pages]
 
 jobs:
   deploy:
@@ -18,16 +18,35 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           path: source
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          cd source
+          npm install
+
+      - name: Build React app
+        run: |
+          cd source
+          npm run build
+        env:
+          CI: false  # prevents warnings from failing the build
+
       - name: Checkout cds-engine
         uses: actions/checkout@v4
         with:
           path: target
+          token: ${{ secrets.PAT_TOKEN }}
 
-      - name: Copy web files from private repo
+      - name: Copy build output to cds-engine
         run: |
-          cp source/src/index.html target/index.html
-          cp source/src/app.js target/app.js
-          cp source/src/style.css target/style.css
+          cd target
+          # Clear old build files but keep .github folder
+          find . -maxdepth 1 ! -name '.github' ! -name '.' ! -name '.git' -exec rm -rf {} +
+          cp -r ../source/build/. .
 
       - name: Commit and push to cds-engine
         run: |
@@ -35,5 +54,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add .
-          git commit -m "Deploy latest from centralized-docs-system" || echo "No changes to commit"
+          git commit -m "Deploy latest build from centralized-docs-system" || echo "No changes to commit"
           git push
