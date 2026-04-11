@@ -20,6 +20,7 @@ jobs:
         run: |
           cd automated-portals
           npm install --legacy-peer-deps
+          npm install dotenv googleapis axios --legacy-peer-deps
       - name: Run update-tc-labels.js
         env:
           CDS_PORTALS_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_PORTALS_SERVICE_ACCOUNT_JSON }}
