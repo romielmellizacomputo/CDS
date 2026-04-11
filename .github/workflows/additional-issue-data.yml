@@ -21,6 +21,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm install --legacy-peer-deps
+          npm install dotenv googleapis axios --legacy-peer-deps
       - name: Run additional issue data script
         env:
           GITLAB_URL: ${{ secrets.GITLAB_URL }}
