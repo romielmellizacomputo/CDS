@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- ═══════════════════════════════════════════════════
+       GENTLEJOBS SITEMAP
+       Only public, indexable pages belong here.
+       Authenticated/portal routes are excluded — they
+       are blocked in robots.txt and serve no SEO value.
+       Last Updated: 2026-03-16
+       ═══════════════════════════════════════════════════ -->
+
+  <!-- ── CORE PUBLIC PAGES ── -->
+
+  <url>
+    <loc>https://gentlejobs.com/</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/events</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- ── ABOUT & INFO ──
+       Route confirmed: /about (from MainContent.js)
+       NOTE: AboutUs.js currently sets canonical to /about-us —
+       that also needs correcting in AboutUs.js to match /about -->
+
+  <url>
+    <loc>https://gentlejobs.com/about</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/services</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/help-center</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- REMOVED: /post-job  — no route in MainContent.js (add back when route is built)
+       REMOVED: /page       — ProtectedRoute, requires login
+       REMOVED: /companies  — ProtectedRoute, requires login -->
+
+  <!-- ── AUTHENTICATION ──
+       Low priority — login/signup pages have thin content
+       but are worth indexing for branded searches -->
+
+  <url>
+    <loc>https://gentlejobs.com/login</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/signup</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- ── LEGAL ── -->
+
+  <url>
+    <loc>https://gentlejobs.com/privacy-policy</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/terms-conditions</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+  </url>
+
+  <!-- ══════════════════════════════════════════════════════
+       JOB CATEGORY LANDING PAGES
+       These are high-value SEO pages targeting searches like
+       "technology jobs Philippines" or "healthcare jobs Cebu".
+       Create a static or SSR-rendered page for each of these.
+       Add more categories as your job volume grows.
+       ══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/technology</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/healthcare</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/finance</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/logistics</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/education</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/creative</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/food-beverage</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/real-estate</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ══════════════════════════════════════════════════════
+       LOCATION LANDING PAGES
+       Targets searches like "jobs in Cebu" or "remote jobs
+       Philippines". These are among the highest-traffic
+       organic search queries for job boards in your region.
+       ══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/philippines</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/cebu</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/manila</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/remote</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/davao</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/quezon-city</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ══════════════════════════════════════════════════════
+       JOB TYPE LANDING PAGES
+       Targets high-intent searches from your homepage tags:
+       "fresh graduate jobs", "no experience jobs", etc.
+       ══════════════════════════════════════════════════════ -->
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/fresh-graduate</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/no-experience</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/part-time</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/freelance</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://gentlejobs.com/jobs/full-time</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- ══════════════════════════════════════════════════════
+       NOTES FOR FUTURE EXPANSION:
+
+       1. DYNAMIC JOB LISTINGS
+          Once you implement SSR or pre-rendering, add each
+          individual job post URL here, or use a separate
+          sitemap-jobs.xml. Example format:
+
+          <url>
+            <loc>https://gentlejobs.com/jobs/software-engineer-cebu-123</loc>
+            <lastmod>2026-03-15</lastmod>
+            <changefreq>weekly</changefreq>
+            <priority>0.7</priority>
+          </url>
+
+       2. COMPANY PROFILE PAGES
+          /companies/:businessId exists as a route but is
+          ProtectedRoute. If you add a public company profile
+          view, add those URLs to sitemap-companies.xml.
+
+       3. HELP CENTER TOPICS
+          /help-center/:topic exists as a route. Once topics
+          have real content, add them individually here.
+
+       4. POST A JOB PAGE
+          /post-job has no route yet (renders ComingSoon).
+          Add to sitemap once the route is built.
+
+       5. SITEMAP INDEX
+          Once you have 1,000+ URLs, split into multiple
+          sitemaps and reference them via sitemap-index.xml.
+
+       PAGES INTENTIONALLY EXCLUDED — all require login (ProtectedRoute):
+          - /companies             BusinessHubShops
+          - /companies/:id         BusinessPage
+          - /page                  BusinessHubPage
+          - /partners              BusinessHubPartners
+          - /partners/profile/:id  UserProfilePage
+          - /account-settings      AccountSettings
+          - /account/resume        Resume
+          - /saved-items           SavedItems
+          - /nearby                Nearby
+          - /notifications         Notifications
+          - /chat-space            ChatPage
+          - /chat-support          ChatSupport
+          - /register-company      BizRegistration
+          - /update-company/:id    BizRegistration
+          - /admin/*               Admin
+          - /personal              MySpace
+          - /jobs/applications     JobApplications
+          - /jobs/contracts        MyContracts
+          - /company/*             EmployeePortalApp (entire portal)
+
+       CATEGORY / LOCATION LANDING PAGES (listed above):
+          These routes currently return ComingSoon via the
+          catch-all route in MainContent.js. They are included
+          in the sitemap as forward-looking pages. Build them
+          as real SSR or pre-rendered pages to unlock their
+          SEO value — until then Google will see a thin page.
+       ══════════════════════════════════════════════════════ -->
+
+</urlset>

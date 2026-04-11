@@ -1,0 +1,103 @@
+# humanstxt.org
+# The humans responsible for Gentle Jobs
+
+# ======================================================================
+#  SCALEJOBS — Find Jobs. Scale Your Future!
+#  https://gentlejobs.com
+# ======================================================================
+#
+# Gentle Jobs is the all-in-one global career and workforce platform
+# connecting employers and job seekers worldwide.
+#
+# Free to join. Powerful to use.
+# ======================================================================
+
+
+/* TEAM */
+
+  The Gentle Jobs Team
+  Site: https://gentlejobs.com
+  Contact: scalejobs@gmail.com
+  Location: Worldwide
+
+
+/* PLATFORM */
+
+  Name: Gentle Jobs
+  Tagline: Find Jobs. Scale Your Future!
+  Type: Career & Workforce Management Platform
+  Founded: 2020
+  URL: https://gentlejobs.com
+
+
+/* FOR JOB SEEKERS */
+
+  - Apply to thousands of verified job listings — free
+  - Basic and premium resume builder
+  - Publish a branded public profile with shareable link
+  - Custom profile URL and verified badge
+  - Portfolio and credential showcase
+  - Priority visibility and application analytics (premium)
+  - Direct employer messaging and interview scheduling
+  - Receive and digitally sign employment contracts
+
+
+/* FOR EMPLOYERS */
+
+  - Post unlimited job listings and events
+  - Built-in applicant tracking system
+  - Chat, negotiate, and schedule with candidates
+  - Send and manage employment contracts digitally
+  - Onboard employees directly into your workspace
+
+
+/* TEAM WORKSPACE & HR TOOLS */
+
+  - Role-based access: HR Admin, Executive, Manager, Supervisor, Employee
+  - Kanban task board and project management
+  - Employee scheduling, shift management, and time records
+  - 201 file management and complete employee records
+  - CRM and team relationship management
+  - Career policies, memorandums, and contract management
+  - Platform access control per employee role
+
+
+/* TECHNOLOGY */
+
+  Frontend: React.js
+  Backend: Supabase
+  Hosting: Web / iOS / Android (PWA)
+  Analytics: Google Analytics
+  Language: JavaScript
+
+
+/* SOCIAL */
+
+  Facebook:  https://www.facebook.com/scalejobs
+  Instagram: https://www.instagram.com/scalejobs
+  Twitter/X: https://twitter.com/scalejobs
+  LinkedIn:  https://www.linkedin.com/company/scalejobs
+  TikTok:    https://www.tiktok.com/@scalejobs
+
+
+/* THANKS */
+
+  To every job seeker hustling for their next opportunity —
+  and every employer building something worth joining.
+  Gentle Jobs exists because of you.
+
+
+/* SITE */
+
+  Last update: 2026-03-10
+  Language: English
+  Doctype: HTML5
+  IDE: Visual Studio Code
+  Standards: W3C, Schema.org, PWA
+
+
+# ======================================================================
+# Gentle Jobs — Find Jobs. Scale Your Future!
+# https://gentlejobs.com
+# scalejobs@gmail.com
+# ======================================================================

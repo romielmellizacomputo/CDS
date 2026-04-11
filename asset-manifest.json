@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/CDS/static/css/main.193dfcb1.css",
+    "main.js": "/CDS/static/js/main.bed17e60.js",
+    "static/css/690.bc3ad565.chunk.css": "/CDS/static/css/690.bc3ad565.chunk.css",
+    "static/js/690.34bd991e.chunk.js": "/CDS/static/js/690.34bd991e.chunk.js",
+    "index.html": "/CDS/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.193dfcb1.css",
+    "static/js/main.bed17e60.js"
+  ]
+}
