@@ -1,5 +1,4 @@
 name: Leads CDS Updater
-
 on:
   workflow_dispatch:
     inputs:
@@ -7,33 +6,28 @@ on:
         description: 'Sheet edit event data (injected by Google Apps Script)'
         required: false
         default: '{}'
-
 jobs:
   sync:
     runs-on: ubuntu-latest
     continue-on-error: true
-
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
           repository: romielmellizacomputo/centralized-docs-system
           token: ${{ secrets.PAT_TOKEN }}
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install google-api-python-client google-auth requests pytz
-
       - name: Run sync-dashboard.py
         run: python leads-cds/sync-dashboard.py
         env:
-          PYTHONPATH: ${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}/leads-cds
           TEAM_CDS_SERVICE_ACCOUNT_JSON: ${{ secrets.TEAM_CDS_SERVICE_ACCOUNT_JSON }}
           LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
           SHEET_DATA: ${{ github.event.inputs.sheet_data }}
