@@ -12,7 +12,8 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 4
-    continue-on-error: true
+    # Remove continue-on-error to see actual failures
+    # continue-on-error: true
 
     steps:
       - name: Checkout Repo
@@ -31,6 +32,72 @@ jobs:
           pip install --upgrade pip
           pip install google-api-python-client google-auth requests pytz
 
+      - name: Debug Service Account Email
+        run: |
+          echo "📧 Extracting Service Account Email from secrets..."
+          echo "${{ secrets.TEAM_CDS_SERVICE_ACCOUNT_JSON }}" | python3 -c "
+          import sys, json
+          try:
+              data = json.load(sys.stdin)
+              email = data.get('client_email')
+              print(f'✅ Service Account Email: {email}')
+              print(f'📝 Please ensure this email has EDITOR access to:')
+              print(f'   1. Source spreadsheet: ${{ secrets.LEADS_CDS_SID }}')
+              print(f'   2. Any external spreadsheets being synced')
+          except Exception as e:
+              print(f'❌ Error parsing service account JSON: {e}')
+              sys.exit(1)
+          "
+
+      - name: Debug Spreadsheet Access
+        run: |
+          echo "📊 Checking spreadsheet configuration..."
+          echo "Source Spreadsheet ID: ${{ secrets.LEADS_CDS_SID }}"
+          echo "Sheet Data received: ${{ github.event.inputs.sheet_data }}"
+          
+          # Test if we can access the spreadsheet with the service account
+          echo "${{ secrets.TEAM_CDS_SERVICE_ACCOUNT_JSON }}" > /tmp/service-account.json
+          
+          python3 << 'EOF'
+          import json
+          from google.oauth2 import service_account
+          from googleapiclient.discovery import build
+          import os
+          
+          # Load credentials
+          with open('/tmp/service-account.json', 'r') as f:
+              creds_json = json.load(f)
+          
+          credentials = service_account.Credentials.from_service_account_info(
+              creds_json,
+              scopes=['https://www.googleapis.com/auth/spreadsheets']
+          )
+          
+          spreadsheet_id = os.getenv('LEADS_CDS_SID')
+          if not spreadsheet_id:
+              print("❌ No spreadsheet ID found")
+              exit(1)
+          
+          # Test access by getting spreadsheet metadata
+          try:
+              service = build('sheets', 'v4', credentials=credentials)
+              sheet_metadata = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+              title = sheet_metadata.get('properties', {}).get('title')
+              print(f"✅ Successfully accessed spreadsheet: '{title}'")
+              print(f"   Sheets found: {len(sheet_metadata.get('sheets', []))}")
+              
+              # List all sheets
+              sheets = sheet_metadata.get('sheets', [])
+              for sheet in sheets:
+                  sheet_title = sheet.get('properties', {}).get('title')
+                  print(f"   - {sheet_title}")
+                  
+          except Exception as e:
+              print(f"❌ Cannot access spreadsheet: {e}")
+              print(f"   Please share the spreadsheet with the service account email")
+              exit(1)
+          EOF
+
       - name: Run sync-dashboard.py
         run: python leads-cds/sync-dashboard.py
         env:
@@ -38,3 +105,28 @@ jobs:
           TEAM_CDS_SERVICE_ACCOUNT_JSON: ${{ secrets.TEAM_CDS_SERVICE_ACCOUNT_JSON }}
           LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
           SHEET_DATA: '${{ github.event.inputs.sheet_data }}'
+
+      - name: Upload debug logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-logs
+          path: |
+            /tmp/*.log
+            /home/runner/work/_temp/*.log
+          retention-days: 7
+
+      - name: Send failure notification
+        if: failure()
+        run: |
+          echo "⚠️ Sync failed! Check the logs above for details."
+          echo ""
+          echo "Common issues:"
+          echo "1. Service account doesn't have access to the spreadsheet"
+          echo "2. Cells are protected and service account isn't added as editor"
+          echo "3. External spreadsheet ID is invalid or inaccessible"
+          echo ""
+          echo "To fix:"
+          echo "- Share the spreadsheet with the service account email as Editor"
+          echo "- Add service account email to protected ranges if needed"
+          echo "- Verify external spreadsheet IDs are correct"
