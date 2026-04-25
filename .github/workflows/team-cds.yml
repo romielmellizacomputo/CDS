@@ -1,7 +1,9 @@
 name: Team CDS Daily Runner
 on:
   schedule:
-    - cron: '30 19 * * *'  # Every day at 3:30 AM PH time (UTC+8)
+    - cron: '0 16 * * *'  # 12:00 midnight Philippine Time (PHT)
+    - cron: '0 4 * * *'   # 12:00 noon Philippine Time (PHT)
+    - cron: '0 10 * * *'  # 6:00 PM Philippine Time (PHT)
   workflow_dispatch:
     inputs:
       sheet_data:
@@ -18,7 +20,6 @@ jobs:
         with:
           repository: romielmellizacomputo/centralized-docs-system
           token: ${{ secrets.PAT_TOKEN }}
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
