@@ -1,0 +1,40 @@
+name: Test Scenario ML Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      sheet_data:
+        description: 'Optional sheet data from external trigger'
+        required: false
+        default: '{}'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout Private Repo (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install google-api-python-client
+          pip install pytz
+          pip install requests
+
+      - name: Run tsp_ml_sync.py
+        run: python TCP_AND_TSP/tsp_ml_sync.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          TEAM_CDS_SERVICE_ACCOUNT_JSON: ${{ secrets.TEAM_CDS_SERVICE_ACCOUNT_JSON }}
+          TSP_ML_SID: ${{ secrets.TSP_ML_SID }}
+          SHEET_DATA: ${{ github.event.inputs.sheet_data }}
