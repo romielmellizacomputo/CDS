@@ -1,7 +1,7 @@
 name: Test Case ML Sync
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     inputs:
       sheet_data:
