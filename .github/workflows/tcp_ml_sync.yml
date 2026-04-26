@@ -1,13 +1,13 @@
 name: Test Case ML Sync
-
 on:
+  schedule:
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     inputs:
       sheet_data:
         description: 'Optional sheet data from external trigger'
         required: false
         default: '{}'
-
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -18,19 +18,16 @@ jobs:
         with:
           repository: romielmellizacomputo/centralized-docs-system
           token: ${{ secrets.PAT_TOKEN }}
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install google-api-python-client
           pip install pytz
           pip install requests
-
       - name: Run tcp_ml_sync.py
         run: python TCP_AND_TSP/tcp_ml_sync.py
         env:
