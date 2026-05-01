@@ -32,7 +32,7 @@ jobs:
         run: python TCP_AND_TSP/team_scenarios_updater.py
         env:
           PYTHONPATH: ${{ github.workspace }}
-          TEAM_CDS_SERVICE_ACCOUNT_JSON: ${{ secrets.TEAM_CDS_SERVICE_ACCOUNT_JSON }}
+          CDS_AP_001_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_AP_001_SERVICE_ACCOUNT_JSON }}
           TSP_ML_SID: ${{ secrets.TSP_ML_SID }}
           TCP_ML_SID: ${{ secrets.TCP_ML_SID }}
           SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
