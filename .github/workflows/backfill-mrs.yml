@@ -1,0 +1,52 @@
+name: Backfill GitLab MRs (Manual)
+on:
+  workflow_dispatch:  # Manual trigger only from GitHub Actions UI
+jobs:
+  run-backfill-mrs:
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Allow this job to fail without failing the entire workflow
+    env:
+      PROJECT_CONFIG: ${{ secrets.PROJECT_CONFIG }}  # Add this at job level to ensure access
+    steps:
+      - name: Checkout Private Repo (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: |
+          cd SheetSync
+          npm install
+      - name: Check Runner IP Address
+        run: |
+          echo "Fetching IP address..."
+          IP_ADDRESS=$(curl -s http://ifconfig.me)
+          echo "Runner IP Address: $IP_ADDRESS"
+      - name: Ensure package.json has type module
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pkgPath = 'package.json';
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+            if (pkg.type !== 'module') {
+              pkg.type = 'module';
+              fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+              console.log('✅ Added type: module to package.json');
+            } else {
+              console.log('ℹ️ package.json already has type: module');
+            }
+          "
+      - name: Run backfill-mrs.js
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
+          SHEET_SYNC_SAJ: ${{ secrets.SHEET_SYNC_SAJ }}
+          GITLAB_URL: ${{ secrets.GITLAB_URL }}
+          PROJECT_CONFIG: ${{ secrets.PROJECT_CONFIG }}  # Pass PROJECT_CONFIG explicitly
+        run: |
+          cd SheetSync
+          node backfill-mrs.js
