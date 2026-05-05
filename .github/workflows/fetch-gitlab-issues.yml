@@ -1,9 +1,7 @@
 name: Fetch GitLab Issues Service
 on:
   schedule:
-    - cron: '0 16 * * *'  # 12:00 midnight Philippine Time (PHT)
-    - cron: '0 4 * * *'   # 12:00 noon Philippine Time (PHT)
-    - cron: '0 10 * * *'  # 6:00 PM Philippine Time (PHT)
+    - cron: '0 * * * *'  # Every hour
   workflow_dispatch:  # Allows manual triggering from GitHub Actions UI
 jobs:
   run-github:
