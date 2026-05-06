@@ -40,7 +40,7 @@ jobs:
               console.log('ℹ️ package.json already has type: module');
             }
           "
-      - name: Run reprocess-all-mr-details.js
+      - name: Run backfill-mrs.js
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
           SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
@@ -49,4 +49,4 @@ jobs:
           PROJECT_CONFIG: ${{ secrets.PROJECT_CONFIG }}  # Pass PROJECT_CONFIG explicitly
         run: |
           cd SheetSync
-          node reprocess-all-mr-details.js
+          node backfill-mrs.js
