@@ -1,4 +1,4 @@
-name: Team CDS Daily Runner
+name: Team CDS Runner
 on:
   schedule:
   - cron: '0 * * * *'
