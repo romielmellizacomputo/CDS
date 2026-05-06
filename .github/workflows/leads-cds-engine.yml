@@ -1,12 +1,7 @@
-name: Leads CDS Updater
+name: Leads CDS Runner
 
 on:
   workflow_dispatch:
-    inputs:
-      sheet_data:
-        description: 'Sheet edit event data (injected by Google Apps Script)'
-        required: false
-        default: '{}'
 
 jobs:
   sync:
@@ -29,11 +24,11 @@ jobs:
           pip install --upgrade pip
           pip install google-api-python-client google-auth requests pytz
 
-      - name: Run sync-dashboard.py
+      - name: Run fetch_testing_data.py
         continue-on-error: true
-        run: python leads-cds/sync-dashboard.py
+        run: python leads-cds/fetch_testing_data.py
         env:
           PYTHONPATH: ${{ github.workspace }}/leads-cds
-          TEAM_CDS_SERVICE_ACCOUNT_JSON: ${{ secrets.TEAM_CDS_SERVICE_ACCOUNT_JSON }}
+          TEAM_CDS_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_AP_003_SERVICE_ACCOUNT_JSON  }}
           LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
-          SHEET_DATA: '${{ github.event.inputs.sheet_data }}'
+          TCP_MASTER_LIST_ID: ${{ secrets.TCP_MASTER_LIST_ID }}
