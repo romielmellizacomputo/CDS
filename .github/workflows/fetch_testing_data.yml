@@ -1,4 +1,4 @@
-name: Leads CDS Runner
+name: Testing Tracker Data Fetcher
 on:
   workflow_dispatch:
   schedule:
