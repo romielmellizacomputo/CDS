@@ -1,4 +1,4 @@
-name: QA Sprint Report Runner
+name: Sprint Report Data Fetcher
 on:
   workflow_dispatch:
   schedule:
