@@ -1,5 +1,9 @@
 name: Testing Tracker Report
 on:
+  schedule:
+    - cron: '0 2 * * *'   # 10:00 AM PHT (UTC+8)
+    - cron: '0 6 * * *'   # 2:00 PM PHT (UTC+8)
+    - cron: '0 10 * * *'  # 6:00 PM PHT (UTC+8)
   workflow_dispatch:
 jobs:
   report:
