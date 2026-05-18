@@ -27,8 +27,8 @@ jobs:
           pip install --upgrade pip
           pip install google-api-python-client
           pip install pytz
-      - name: Run update_tc_review.py
-        run: python team-cds/update_tc_review.py
+      - name: Run update_review_sheets.py
+        run: python team-cds/update_review_sheets.py
         env:
           CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
           LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
