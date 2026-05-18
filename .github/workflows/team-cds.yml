@@ -27,46 +27,46 @@ jobs:
           pip install --upgrade pip
           pip install google-api-python-client
           pip install pytz
-      # - name: Run update_review_sheets.py
-      #   run: python team-cds/update_review_sheets.py
-      #   env:
-      #     CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
-      #     LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
-      #     SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
-      #     CBS_SID: ${{ secrets.CBS_SID }}
-      #     SHEET_DATA: ${{ github.event.inputs.sheet_data }}
-      # - name: Run fetch-issues.py
-      #   run: python team-cds/fetch-issues.py
-      #   env:
-      #     CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
-      #     LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
-      #     SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
-      #     CBS_SID: ${{ secrets.CBS_SID }}
-      #     SHEET_DATA: ${{ github.event.inputs.sheet_data }}
-      # - name: Run fetch-mr.py
-      #   run: python team-cds/fetch-mr.py
-      #   env:
-      #     CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
-      #     LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
-      #     SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
-      #     CBS_SID: ${{ secrets.CBS_SID }}
-      #     SHEET_DATA: ${{ github.event.inputs.sheet_data }}
-      # - name: Run fetch-ntc.py
-      #   run: python team-cds/fetch-ntc.py
-      #   env:
-      #     CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
-      #     LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
-      #     SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
-      #     CBS_SID: ${{ secrets.CBS_SID }}
-      #     SHEET_DATA: ${{ github.event.inputs.sheet_data }}
-      # - name: Run fetch-tcs.py
-      #   run: python team-cds/fetch-tcs.py
-      #   env:
-      #     CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
-      #     LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
-      #     SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
-      #     CBS_SID: ${{ secrets.CBS_SID }}
-      #     SHEET_DATA: ${{ github.event.inputs.sheet_data }}
+      - name: Run update_review_sheets.py
+        run: python team-cds/update_review_sheets.py
+        env:
+          CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
+          LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
+          CBS_SID: ${{ secrets.CBS_SID }}
+          SHEET_DATA: ${{ github.event.inputs.sheet_data }}
+      - name: Run fetch-issues.py
+        run: python team-cds/fetch-issues.py
+        env:
+          CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
+          LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
+          CBS_SID: ${{ secrets.CBS_SID }}
+          SHEET_DATA: ${{ github.event.inputs.sheet_data }}
+      - name: Run fetch-mr.py
+        run: python team-cds/fetch-mr.py
+        env:
+          CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
+          LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
+          CBS_SID: ${{ secrets.CBS_SID }}
+          SHEET_DATA: ${{ github.event.inputs.sheet_data }}
+      - name: Run fetch-ntc.py
+        run: python team-cds/fetch-ntc.py
+        env:
+          CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
+          LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
+          CBS_SID: ${{ secrets.CBS_SID }}
+          SHEET_DATA: ${{ github.event.inputs.sheet_data }}
+      - name: Run fetch-tcs.py
+        run: python team-cds/fetch-tcs.py
+        env:
+          CDS_CORE_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_CORE_SERVICE_ACCOUNT_JSON }}
+          LEADS_CDS_SID: ${{ secrets.LEADS_CDS_SID }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
+          CBS_SID: ${{ secrets.CBS_SID }}
+          SHEET_DATA: ${{ github.event.inputs.sheet_data }}
       - name: Run update_tc_counts.py
         run: python team-cds/update_tc_counts.py
         env:
