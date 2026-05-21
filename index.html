@@ -388,8 +388,8 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
   width: 240px;
 }
 
-/* Filter button */
-.filter-btn {
+/* Sort button */
+.sort-btn {
   position: relative;
   display: flex; align-items: center; gap: 7px;
   padding: 7px 13px;
@@ -398,18 +398,18 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
   font-family: var(--font); font-size: 12px; font-weight: 500;
   cursor: pointer; transition: all 0.2s; white-space: nowrap;
 }
-.filter-btn:hover { border-color: var(--accent); color: var(--text); }
-.filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(91,143,255,0.08); }
-.filter-active-dot {
+.sort-btn:hover { border-color: var(--accent); color: var(--text); }
+.sort-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(91,143,255,0.08); }
+.sort-active-dot {
   display: none; position: absolute; top: -3px; right: -3px;
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--accent2); box-shadow: 0 0 6px var(--accent2);
   border: 1px solid var(--bg);
 }
-.filter-active-dot.show { display: block; }
+.sort-active-dot.show { display: block; }
 
 /* Filter dropdown */
-.filter-dropdown {
+.sort-dropdown {
   display: none; position: absolute;
   top: calc(100% + 8px); right: 0;
   width: 260px;
@@ -423,72 +423,72 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
   from { opacity: 0; transform: translateY(-6px) scale(0.98); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
-.filter-dropdown.open { display: block; }
+.sort-dropdown.open { display: block; }
 
-.filter-dropdown-header {
+.sort-dropdown-header {
   padding: 14px 16px 10px;
   font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
   text-transform: uppercase; color: var(--text-dim);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
 }
-.filter-clear-btn {
+.sort-clear-btn {
   font-size: 10px; color: var(--accent); cursor: pointer;
   letter-spacing: 0; text-transform: none; font-weight: 500;
   padding: 0; background: none; border: none; font-family: var(--font);
 }
-.filter-clear-btn:hover { color: var(--text); }
+.sort-clear-btn:hover { color: var(--text); }
 
-.filter-group-label {
+.sort-group-label {
   padding: 10px 16px 6px;
   font-size: 9px; font-weight: 600; letter-spacing: 0.12em;
   text-transform: uppercase; color: var(--text-dim);
 }
-.filter-option {
+.sort-option {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 16px; cursor: pointer;
   transition: background 0.12s;
 }
-.filter-option:hover { background: rgba(255,255,255,0.03); }
-.filter-option input[type=checkbox] { display: none; }
-.filter-checkbox {
-  width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
-  border: 1px solid var(--border-bright); background: var(--surface);
+.sort-option:hover { background: rgba(255,255,255,0.03); }
+.sort-option input[type=checkbox] { display: none; }
+.sort-radio {
+  width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--border-bright); background: var(--surface);
   display: flex; align-items: center; justify-content: center;
   transition: all 0.15s;
 }
-.filter-option.checked .filter-checkbox {
+.filter-option.checked .sort-radio {
   background: var(--accent); border-color: var(--accent);
 }
-.filter-option.checked .filter-checkbox::after {
+.sort-option.checked .sort-radio::after {
   content: '';
   width: 9px; height: 5px;
   border-left: 2px solid #fff; border-bottom: 2px solid #fff;
   transform: rotate(-45deg) translate(1px, -1px);
 }
-.filter-dot {
+.sort-dot {
   width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
 }
-.filter-option-label { font-size: 12px; color: var(--text-muted); flex: 1; }
-.filter-option.checked .filter-option-label { color: var(--text); }
-.filter-option-count {
+.sort-option-label { font-size: 12px; color: var(--text-muted); flex: 1; }
+.filter-option.checked .sort-option-label { color: var(--text); }
+.sort-option-count {
   font-family: var(--mono); font-size: 10px; color: var(--text-dim);
 }
 
-.filter-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.sort-divider { height: 1px; background: var(--border); margin: 4px 0; }
 
-.filter-dropdown-footer {
+.sort-dropdown-footer {
   padding: 10px 16px 12px;
   border-top: 1px solid var(--border);
   display: flex; gap: 8px;
 }
-.filter-apply-btn {
+.sort-apply-btn {
   flex: 1; padding: 8px;
   background: var(--accent); border: none; border-radius: var(--r);
   color: #fff; font-family: var(--font); font-size: 12px; font-weight: 600;
   cursor: pointer; transition: opacity 0.2s;
 }
-.filter-apply-btn:hover { opacity: 0.85; }
+.sort-apply-btn:hover { opacity: 0.85; }
 
 /* Scrollable table body */
 .members-table-container {
@@ -890,26 +890,23 @@ function priClass(label) {
 /* ══════════════════════════════════════════════════
    MEMBERS SECTION — INTERACTIVE LOGIC
 ══════════════════════════════════════════════════ */
-let _allMembers    = [];
-let _memberTotals  = {};
-let _activeFilters = {
-  types:      [],   // 'bug','usability','testCase','bugReview','reopen','closed'
-  priorities: [],   // 'low','med','high','urg'
-};
-let _filterOpen    = false;
-let _searchQuery   = '';
-const PAGE_SIZE    = 10;
+let _allMembers   = [];
+let _memberTotals = {};
+let _sortField    = null;   // e.g. 'bug', 'usability', 'total', 'low', etc.
+let _sortOpen     = false;
+let _searchQuery  = '';
 
 function initMembersSection(members, memberTotals) {
   _allMembers   = members;
   _memberTotals = memberTotals;
-  _activeFilters = { types: [], priorities: [] };
+  _sortField    = null;
   _searchQuery  = '';
+  _sortOpen     = false;
   renderMembersSection();
 }
 
-function getFilteredMembers() {
-  let list = _allMembers;
+function getSortedFilteredMembers() {
+  let list = [..._allMembers];
 
   // Search
   if (_searchQuery.trim()) {
@@ -917,97 +914,130 @@ function getFilteredMembers() {
     list = list.filter(m => m.name.toLowerCase().includes(q));
   }
 
-  // Type filters — show members who have at least 1 in the selected type columns
-  if (_activeFilters.types.length > 0) {
-    list = list.filter(m => _activeFilters.types.some(t => (m[t] || 0) > 0));
-  }
-
-  // Priority filters
-  if (_activeFilters.priorities.length > 0) {
-    list = list.filter(m => _activeFilters.priorities.some(p => (m[p] || 0) > 0));
+  // Sort by selected field descending (highest first)
+  if (_sortField) {
+    list = list.sort((a, b) => (b[_sortField] || 0) - (a[_sortField] || 0));
   }
 
   return list;
 }
 
-
-function hasActiveFilters() {
-  return _activeFilters.types.length > 0 || _activeFilters.priorities.length > 0;
+function hasActiveSort() {
+  return _sortField !== null;
 }
 
 function memberRowHTML(m) {
   const av = avatarColor(m.name);
+  const highlight = (field) =>
+    _sortField === field ? 'style="color:var(--text);font-weight:600"' : '';
   return `<tr>
     <td><div class="member-cell">
       <div class="avatar" style="background:${av}22;color:${av}">${initials(m.name)}</div>
       <span style="font-size:12px">${m.name}</span>
     </div></td>
-    <td>${n(m.bug)}</td>
-    <td>${n(m.usability)}</td>
-    <td>${n(m.bugReview)}</td>
-    <td>${n(m.reopen)}</td>
-    <td>${n(m.testCase)}</td>
-    <td>${n(m.closed)}</td>
-    <td style="color:var(--low)">${n(m.low)}</td>
-    <td style="color:var(--med)">${n(m.med)}</td>
-    <td style="color:var(--high)">${n(m.high)}</td>
-    <td style="color:var(--urg)">${n(m.urg)}</td>
-    <td style="font-weight:500;color:var(--text)">${m.total}</td>
+    <td ${highlight('bug')}>${n(m.bug)}</td>
+    <td ${highlight('usability')}>${n(m.usability)}</td>
+    <td ${highlight('bugReview')}>${n(m.bugReview)}</td>
+    <td ${highlight('reopen')}>${n(m.reopen)}</td>
+    <td ${highlight('testCase')}>${n(m.testCase)}</td>
+    <td ${highlight('closed')}>${n(m.closed)}</td>
+    <td style="color:var(--low);${_sortField==='low'?'font-weight:600':''}">${n(m.low)}</td>
+    <td style="color:var(--med);${_sortField==='med'?'font-weight:600':''}">${n(m.med)}</td>
+    <td style="color:var(--high);${_sortField==='high'?'font-weight:600':''}">${n(m.high)}</td>
+    <td style="color:var(--urg);${_sortField==='urg'?'font-weight:600':''}">${n(m.urg)}</td>
+    <td style="font-weight:${_sortField==='total'?'700':'500'};color:var(--text)">${m.total}</td>
   </tr>`;
 }
 
-function filterOptionHTML(value, label, color, field, count) {
-  const isActive = _activeFilters[field] && _activeFilters[field].includes(value);
+function sortOptionHTML(value, label, color) {
+  const isActive = _sortField === value;
   return `
-  <div class="filter-option${isActive?' checked':''}" onclick="toggleFilter('${field}','${value}',this)">
-    <input type="checkbox"${isActive?' checked':''}>
-    <div class="filter-checkbox"></div>
-    ${color ? `<div class="filter-dot" style="background:${color}"></div>` : ''}
-    <div class="filter-option-label">${label}</div>
-    <div class="filter-option-count">${count}</div>
+  <div class="sort-option${isActive ? ' checked' : ''}" onclick="selectSort('${value}')">
+    <div class="sort-radio"></div>
+    ${color ? `<div class="sort-dot" style="background:${color}"></div>` : ''}
+    <div class="sort-option-label">${label}</div>
+    ${isActive ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2.5" style="flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>` : ''}
   </div>`;
 }
 
+function selectSort(field) {
+  // Toggle off if clicking active sort
+  _sortField = (_sortField === field) ? null : field;
+  renderMembersSection();
+}
+
+function applyFilters() {
+  _sortOpen = false;
+  renderMembersSection();
+}
+
+function clearAllFilters() {
+  _sortField   = null;
+  _searchQuery = '';
+  _sortOpen    = false;
+  renderMembersSection();
+}
+
+function onMembersSearch(val) {
+  _searchQuery = val;
+  renderMembersSection();
+  const el = document.getElementById('membersSearch');
+  if (el) { el.focus(); el.setSelectionRange(val.length, val.length); }
+}
+
+function toggleFilterDropdown() {
+  _sortOpen = !_sortOpen;
+  const dd  = document.getElementById('filterDropdown');
+  const btn = document.getElementById('filterBtn');
+  if (dd)  dd.classList.toggle('open', _sortOpen);
+  if (btn) btn.classList.toggle('active', _sortOpen || hasActiveSort());
+}
+
+function setupFilterDropdownClose() {
+  setTimeout(() => {
+    const handler = (e) => {
+      const wrap = document.getElementById('filterWrap');
+      if (wrap && !wrap.contains(e.target)) {
+        _sortOpen = false;
+        const dd = document.getElementById('filterDropdown');
+        if (dd) dd.classList.remove('open');
+        document.removeEventListener('click', handler);
+      }
+    };
+    document.addEventListener('click', handler);
+  }, 10);
+}
+
 function renderMembersSection() {
-  const filtered = getFilteredMembers();
-  const shown    = filtered;
-  const total    = _allMembers.length;
-  const active   = hasActiveFilters();
-  const t        = _memberTotals;
+  const list    = getSortedFilteredMembers();
+  const total   = _allMembers.length;
+  const active  = hasActiveSort();
+  const t       = _memberTotals;
 
-  // Build totals for filter option counts
-  const typeCounts = {
-    bug:       _allMembers.reduce((s,m)=>s+(m.bug||0),0),
-    usability: _allMembers.reduce((s,m)=>s+(m.usability||0),0),
-    testCase:  _allMembers.reduce((s,m)=>s+(m.testCase||0),0),
-    bugReview: _allMembers.reduce((s,m)=>s+(m.bugReview||0),0),
-    reopen:    _allMembers.reduce((s,m)=>s+(m.reopen||0),0),
-    closed:    _allMembers.reduce((s,m)=>s+(m.closed||0),0),
-  };
-  const prioCounts = {
-    low:  _allMembers.reduce((s,m)=>s+(m.low||0),0),
-    med:  _allMembers.reduce((s,m)=>s+(m.med||0),0),
-    high: _allMembers.reduce((s,m)=>s+(m.high||0),0),
-    urg:  _allMembers.reduce((s,m)=>s+(m.urg||0),0),
-  };
-
-  // Table body
+  // Body rows — all members, sorted
   let bodyHTML = '';
-  if (shown.length === 0) {
+  if (list.length === 0) {
     bodyHTML = `<tr><td colspan="12"><div class="no-results">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" display="block" margin="0 auto 10px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <div>No members match your search or filters.</div>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 10px;opacity:0.3"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <div>No members match your search.</div>
     </div></td></tr>`;
   } else {
-    bodyHTML = shown.map(memberRowHTML).join('');
+    bodyHTML = list.map(memberRowHTML).join('');
   }
 
-  // Computed totals for filtered set
-  const fTot = filtered.reduce((acc,m) => {
+  // Totals row reflects the visible (possibly searched) set
+  const fTot = list.reduce((acc, m) => {
     for (const k of ['bug','usability','bugReview','reopen','testCase','closed','low','med','high','urg','total'])
-      acc[k] = (acc[k]||0) + (m[k]||0);
+      acc[k] = (acc[k] || 0) + (m[k] || 0);
     return acc;
   }, {});
+
+  // Sort label for badge
+  const SORT_LABELS = {
+    bug: 'Bug', usability: 'Usability', bugReview: 'Bug Review',
+    reopen: 'Reopen', testCase: 'Test Case', closed: 'Closed',
+    low: 'Low', med: 'Medium', high: 'High', urg: 'Urgent', total: 'Total'
+  };
 
   const html = `
 <div class="members-card fade-in" id="membersCard">
@@ -1015,6 +1045,7 @@ function renderMembersSection() {
     <div class="members-header-left">
       Output Summary — Members
       <span class="members-count-badge" id="membersCountBadge">${total}</span>
+      ${active ? `<span style="font-size:10px;font-family:var(--mono);color:var(--accent2);background:rgba(0,229,168,0.1);border:1px solid rgba(0,229,168,0.2);padding:2px 7px;border-radius:4px;letter-spacing:0">↓ ${SORT_LABELS[_sortField]}</span>` : ''}
     </div>
     <div class="members-controls">
       <!-- Search -->
@@ -1027,46 +1058,46 @@ function renderMembersSection() {
           id="membersSearch"
           type="text"
           placeholder="Search member…"
-          value="${_searchQuery.replace(/"/g,'&quot;')}"
+          value="${_searchQuery.replace(/"/g, '&quot;')}"
           oninput="onMembersSearch(this.value)"
           autocomplete="off"
         >
       </div>
-      <!-- Filter -->
+      <!-- Sort -->
       <div style="position:relative" id="filterWrap">
-        <button class="filter-btn${active?' active':''}" id="filterBtn" onclick="toggleFilterDropdown()">
+        <button class="sort-btn${active ? ' active' : ''}" id="filterBtn" onclick="toggleFilterDropdown()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="9" y1="18" x2="15" y2="18"/>
           </svg>
-          Filter
-          ${active ? `<span style="font-family:var(--mono);font-size:10px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:3px;margin-left:2px">${_activeFilters.types.length+_activeFilters.priorities.length}</span>` : ''}
-          <div class="filter-active-dot${active?' show':''}"></div>
+          Sort
+          ${active ? `<span style="font-family:var(--mono);font-size:10px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:3px;margin-left:2px">${SORT_LABELS[_sortField]}</span>` : ''}
+          <div class="sort-active-dot${active ? ' show' : ''}"></div>
         </button>
-        <!-- Dropdown -->
-        <div class="filter-dropdown${_filterOpen?' open':''}" id="filterDropdown">
-          <div class="filter-dropdown-header">
-            Filter by
-            <button class="filter-clear-btn" onclick="clearAllFilters()">Clear all</button>
+        <!-- Sort Dropdown -->
+        <div class="sort-dropdown${_sortOpen ? ' open' : ''}" id="filterDropdown">
+          <div class="sort-dropdown-header">
+            Sort by
+            <button class="sort-clear-btn" onclick="clearAllFilters()">Clear sort</button>
           </div>
 
-          <div class="filter-group-label">Ticket Type</div>
-          ${filterOptionHTML('bug',       'Bug',             '#ffb84d', 'types', typeCounts.bug)}
-          ${filterOptionHTML('usability', 'Usability',       '#b07fff', 'types', typeCounts.usability)}
-          ${filterOptionHTML('testCase',  'Test Case',       '#5b8fff', 'types', typeCounts.testCase)}
-          ${filterOptionHTML('bugReview', 'Bug Review',      '#00e5a8', 'types', typeCounts.bugReview)}
-          ${filterOptionHTML('reopen',    'Reopened',        '#ff5577', 'types', typeCounts.reopen)}
-          ${filterOptionHTML('closed',    'Closed',          '#3a4260', 'types', typeCounts.closed)}
+          <div class="sort-group-label">Ticket Type</div>
+          ${sortOptionHTML('bug',       'Bug',        '#ffb84d')}
+          ${sortOptionHTML('usability', 'Usability',  '#b07fff')}
+          ${sortOptionHTML('testCase',  'Test Case',  '#5b8fff')}
+          ${sortOptionHTML('bugReview', 'Bug Review', '#00e5a8')}
+          ${sortOptionHTML('reopen',    'Reopened',   '#ff5577')}
+          ${sortOptionHTML('closed',    'Closed',     '#3a4260')}
 
-          <div class="filter-divider"></div>
-          <div class="filter-group-label">Priority</div>
-          ${filterOptionHTML('low',  'Low Priority',    '#5b8fff', 'priorities', prioCounts.low)}
-          ${filterOptionHTML('med',  'Medium Priority', '#b07fff', 'priorities', prioCounts.med)}
-          ${filterOptionHTML('high', 'High Priority',   '#ffb84d', 'priorities', prioCounts.high)}
-          ${filterOptionHTML('urg',  'Urgent',          '#ff5577', 'priorities', prioCounts.urg)}
+          <div class="sort-divider"></div>
+          <div class="sort-group-label">Priority</div>
+          ${sortOptionHTML('low',  'Low Priority',    '#5b8fff')}
+          ${sortOptionHTML('med',  'Medium Priority', '#b07fff')}
+          ${sortOptionHTML('high', 'High Priority',   '#ffb84d')}
+          ${sortOptionHTML('urg',  'Urgent',          '#ff5577')}
 
-          <div class="filter-dropdown-footer">
-            <button class="filter-apply-btn" onclick="applyFilters()">Apply Filters</button>
-          </div>
+          <div class="sort-divider"></div>
+          <div class="sort-group-label">General</div>
+          ${sortOptionHTML('total', 'Total (default)', null)}
         </div>
       </div>
     </div>
@@ -1078,13 +1109,17 @@ function renderMembersSection() {
         <thead>
           <tr>
             <th style="text-align:left">Member</th>
-            <th>Bug</th><th>Usab.</th><th>Bug Rev.</th><th>Reopen</th>
-            <th>Test Case</th><th>Closed</th>
-            <th style="color:var(--low)">Low</th>
-            <th style="color:var(--med)">Med</th>
-            <th style="color:var(--high)">High</th>
-            <th style="color:var(--urg)">Urg</th>
-            <th>Total</th>
+            <th style="${_sortField==='bug'?'color:var(--warn);':''}">Bug</th>
+            <th style="${_sortField==='usability'?'color:var(--accent);':''}">Usab.</th>
+            <th style="${_sortField==='bugReview'?'color:var(--accent2);':''}">Bug Rev.</th>
+            <th style="${_sortField==='reopen'?'color:var(--danger);':''}">Reopen</th>
+            <th style="${_sortField==='testCase'?'color:var(--accent);':''}">Test Case</th>
+            <th style="${_sortField==='closed'?'color:var(--accent2);':''}">Closed</th>
+            <th style="color:var(--low);${_sortField==='low'?'text-decoration:underline;':''}" >Low</th>
+            <th style="color:var(--med);${_sortField==='med'?'text-decoration:underline;':''}">Med</th>
+            <th style="color:var(--high);${_sortField==='high'?'text-decoration:underline;':''}">High</th>
+            <th style="color:var(--urg);${_sortField==='urg'?'text-decoration:underline;':''}">Urg</th>
+            <th style="${_sortField==='total'?'color:var(--accent);':''}">Total</th>
           </tr>
         </thead>
         <tbody id="membersTableBody">
@@ -1098,7 +1133,7 @@ function renderMembersSection() {
         <tfoot>
           <tr>
             <td style="text-align:left;padding:10px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-family:var(--font);color:var(--text);font-weight:500;min-width:170px">
-              ${filtered.length < total ? `Filtered (${filtered.length})` : 'Total'}
+              ${list.length < total ? `Filtered (${list.length})` : 'Total'}
             </td>
             <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.bug||0}</td>
             <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.usability||0}</td>
@@ -1119,10 +1154,10 @@ function renderMembersSection() {
 
   <div class="members-footer-meta">
     <span class="members-showing" id="membersShowing">
-      ${filtered.length < total ? `Showing ${filtered.length} of ${total} members (filtered)` : `${total} member${total===1?'':\'s\'} total`}
-      ${filtered.length > 10 ? ` &middot; <span style="color:var(--accent)">scroll to see all</span>` : \'\'}
+      ${list.length < total ? `Showing ${list.length} of ${total} members (filtered)` : `${total} member${total===1?'':'s'} total`}
+      ${list.length > 10 ? ` &middot; <span style="color:var(--accent)">scroll to see all</span>` : ''}
     </span>
-    ${active || _searchQuery ? `<span style="font-size:11px;color:var(--accent);cursor:pointer" onclick="clearAllFilters();onMembersSearch(\'\')">&#x2715; Clear filters</span>` : \'\'}
+    ${active || _searchQuery ? `<span style="font-size:11px;color:var(--accent);cursor:pointer" onclick="clearAllFilters();onMembersSearch('')">&#x2715; Clear sort</span>` : ''}
   </div>
 </div>`;
 
@@ -1130,10 +1165,8 @@ function renderMembersSection() {
   if (container) {
     container.innerHTML = html;
     setupFilterDropdownClose();
-    // Restore scroll position if needed
     const scrollEl = document.getElementById('membersTableScroll');
     if (scrollEl) {
-      // Sync footer scroll with body scroll
       scrollEl.addEventListener('scroll', () => {
         const footer = scrollEl.closest('.members-table-container').querySelector('.members-tfoot-wrap');
         if (footer) footer.scrollLeft = scrollEl.scrollLeft;
@@ -1142,69 +1175,7 @@ function renderMembersSection() {
   }
 }
 
-function setupFilterDropdownClose() {
-  // Close on outside click
-  setTimeout(() => {
-    const handler = (e) => {
-      const wrap = document.getElementById('filterWrap');
-      if (wrap && !wrap.contains(e.target)) {
-        _filterOpen = false;
-        const dd = document.getElementById('filterDropdown');
-        if (dd) dd.classList.remove('open');
-        document.removeEventListener('click', handler);
-      }
-    };
-    document.addEventListener('click', handler);
-  }, 10);
-}
 
-function toggleFilterDropdown() {
-  _filterOpen = !_filterOpen;
-  const dd = document.getElementById('filterDropdown');
-  const btn = document.getElementById('filterBtn');
-  if (dd) dd.classList.toggle('open', _filterOpen);
-  if (btn) btn.classList.toggle('active', _filterOpen || hasActiveFilters());
-}
-
-function toggleFilter(field, value, el) {
-  const arr = _activeFilters[field];
-  const idx = arr.indexOf(value);
-  if (idx === -1) arr.push(value);
-  else arr.splice(idx, 1);
-  el.classList.toggle('checked', idx === -1);
-  // Update badge immediately
-  const btn = document.getElementById('filterBtn');
-  const total = _activeFilters.types.length + _activeFilters.priorities.length;
-  if (btn) {
-    btn.classList.toggle('active', total > 0 || _filterOpen);
-    const dot = btn.querySelector('.filter-active-dot');
-    if (dot) dot.classList.toggle('show', total > 0);
-  }
-}
-
-function applyFilters() {
-  _filterOpen = false;
-  renderMembersSection();
-}
-
-function clearAllFilters() {
-  _activeFilters = { types: [], priorities: [] };
-  _searchQuery   = '';
-  _filterOpen    = false;
-  renderMembersSection();
-}
-
-function onMembersSearch(val) {
-  _searchQuery = val;
-  renderMembersSection();
-  // Re-focus search
-  const el = document.getElementById('membersSearch');
-  if (el) { el.focus(); el.setSelectionRange(val.length, val.length); }
-}
-
-/* ══════════════════════════════════════════════════
-   RENDER DASHBOARD
-══════════════════════════════════════════════════ */
 function renderDashboard(metrics) {
   const { total, closed, kpis, priorityCounts, milestones, msTotal,
           members, memberTotals, reporters, donut, urgent,
