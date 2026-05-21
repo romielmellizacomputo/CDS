@@ -572,6 +572,61 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
 }
 .members-showing { font-family: var(--mono); }
 
+/* ── Sprint Dropdown ── */
+.sprint-dropdown-wrap {
+  position: relative;
+}
+.sprint-select-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 12px;
+  background: var(--surface2); border: 1px solid var(--border-bright);
+  border-radius: var(--r); color: var(--text);
+  font-family: var(--font); font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; min-width: 200px;
+  white-space: nowrap;
+}
+.sprint-select-btn:hover { border-color: var(--accent); box-shadow: 0 0 12px rgba(91,143,255,0.1); }
+.sprint-select-btn .sprint-btn-label { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+.sprint-select-btn svg { flex-shrink: 0; color: var(--text-muted); transition: transform 0.2s; }
+.sprint-select-btn.open svg { transform: rotate(180deg); }
+.sprint-select-btn .sprint-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--accent2); box-shadow: 0 0 5px var(--accent2);
+}
+
+.sprint-dropdown-menu {
+  display: none; position: absolute;
+  top: calc(100% + 6px); left: 0;
+  min-width: 260px; max-height: 320px; overflow-y: auto;
+  background: var(--surface2); border: 1px solid var(--border-bright);
+  border-radius: var(--r-lg);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(91,143,255,0.06);
+  z-index: 200; animation: dropIn 0.18s ease both;
+  scrollbar-width: thin; scrollbar-color: var(--border-bright) transparent;
+}
+.sprint-dropdown-menu.open { display: block; }
+.sprint-dropdown-menu::-webkit-scrollbar { width: 4px; }
+.sprint-dropdown-menu::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+.sprint-menu-header {
+  padding: 12px 14px 8px;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font);
+}
+.sprint-menu-item {
+  padding: 10px 14px; cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(37,43,66,0.4);
+}
+.sprint-menu-item:last-child { border-bottom: none; }
+.sprint-menu-item:hover { background: rgba(91,143,255,0.06); }
+.sprint-menu-item.active { background: rgba(91,143,255,0.1); }
+.sprint-menu-item.active .smi-name { color: var(--accent); }
+.smi-name { font-size: 13px; font-weight: 500; color: var(--text); font-family: var(--font); margin-bottom: 2px; }
+.smi-dates { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+
 @media (max-width: 1100px) {
   .analytics-grid { grid-template-columns: 1fr 1fr; }
   .analytics-col-left { grid-column: 1 / -1; flex-direction: row; }
@@ -628,16 +683,21 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
 /* ══════════════════════════════════════════════════
    CONSTANTS
 ══════════════════════════════════════════════════ */
-const CLIENT_ID  = '972002611239-cgrk0bk448av6d6fen10rhbm7cpf9rvu.apps.googleusercontent.com';
-const SHEET_ID   = '1HStlB0xNjCJWScZ35e_e1c7YxZ06huNqznfVUc-ZE5k';
-const SHEET_TAB  = 'ALL TICKETS';
-const DATA_RANGE = 'C3:T';
-const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets.readonly';
+const CLIENT_ID    = '972002611239-cgrk0bk448av6d6fen10rhbm7cpf9rvu.apps.googleusercontent.com';
+const SHEET_ID     = '1HStlB0xNjCJWScZ35e_e1c7YxZ06huNqznfVUc-ZE5k';
+const SHEET_TAB    = 'ALL TICKETS';
+const TIMELINE_TAB = 'Timelines';
+const DATA_RANGE   = 'C3:T';
+const SCOPES       = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 const AVATAR_COLORS = ['#5b8fff','#b07fff','#00e5a8','#ffb84d','#ff5577','#3dd6f5','#f06292','#aed581','#ffb74d'];
 
 let accessToken = null;
 let currentUser = { name: 'User', email: '', initials: 'U' };
 const STORAGE_KEY = 'qa_dash_session';
+
+/* ── Sprint state ── */
+let _sprints        = [];   // [{ name, start, end, startDate, endDate }]
+let _selectedSprint = null; // current sprint object
 
 /* ── Session helpers ── */
 function saveSession() {
@@ -699,16 +759,80 @@ function signOut() {
 window.addEventListener('DOMContentLoaded', () => { if (loadSession()) loadDashboard(); });
 
 /* ══════════════════════════════════════════════════
-   FETCH SHEET DATA
+   FETCH HELPERS
 ══════════════════════════════════════════════════ */
-async function fetchSheetData() {
-  const range = encodeURIComponent(`'${SHEET_TAB}'!${DATA_RANGE}`);
+async function sheetFetch(rangeStr) {
+  const range = encodeURIComponent(rangeStr);
   const url   = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueRenderOption=FORMATTED_VALUE`;
   const res   = await fetch(url, { headers: { Authorization: 'Bearer ' + accessToken } });
   if (res.status === 401) { signOut(); throw new Error('Session expired. Please sign in again.'); }
   if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err?.error?.message || `HTTP ${res.status}`); }
   const data = await res.json();
   return data.values || [];
+}
+
+/* Fetch + parse Timelines sheet — returns array of sprint objects */
+async function fetchTimelines() {
+  const rows = await sheetFetch(`'${TIMELINE_TAB}'!A2:C`);
+  return rows
+    .filter(r => r[0] && r[0].trim())
+    .map(r => {
+      const name  = (r[0] || '').trim();
+      const start = (r[1] || '').trim();
+      const end   = (r[2] || '').trim();
+      return {
+        name,
+        start,  // raw string for display
+        end,
+        startDate: parseAnyDate(start),
+        endDate:   parseAnyDate(end),
+      };
+    });
+}
+
+/* Fetch ALL TICKETS raw rows (unfiltered) */
+async function fetchSheetData() {
+  return sheetFetch(`'${SHEET_TAB}'!${DATA_RANGE}`);
+}
+
+/* ── Date parsing ─────────────────────────────── */
+// Handles: "January 15, 2025", "Jan 15, 2025", "Monday, January 15, 2025",
+//          "2025-01-15", "01/15/2025", "15/01/2025", serial numbers
+function parseAnyDate(str) {
+  if (!str) return null;
+  str = str.trim();
+  // Google Sheets serial number (e.g. 45672)
+  if (/^\d{4,6}$/.test(str)) {
+    const serial = parseInt(str, 10);
+    // Google epoch: Dec 30 1899
+    return new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
+  }
+  // Remove weekday prefix "Monday, " or "Mon, "
+  const noDay = str.replace(/^\w+,\s*/, '');
+  const d = new Date(noDay);
+  if (!isNaN(d)) return d;
+  // Try original
+  const d2 = new Date(str);
+  if (!isNaN(d2)) return d2;
+  return null;
+}
+
+/* Normalise a date to midnight UTC for clean range comparisons */
+function toMidnightUTC(d) {
+  if (!d) return null;
+  return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+}
+
+/* Return true if ticketDateStr falls within [startDate, endDate] inclusive */
+function inSprintRange(ticketDateStr, startDate, endDate) {
+  if (!startDate && !endDate) return true; // no filter
+  const td = toMidnightUTC(parseAnyDate(ticketDateStr));
+  if (!td) return false;
+  const s = startDate ? toMidnightUTC(startDate) : null;
+  const e = endDate   ? toMidnightUTC(endDate)   : null;
+  if (s && td < s) return false;
+  if (e && td > e) return false;
+  return true;
 }
 
 /* ══════════════════════════════════════════════════
@@ -898,19 +1022,16 @@ function computeMetrics(tickets) {
     { label:'Closed',            value:closed,     pct:pct(closed),     color:'#3a4260' },
   ];
 
-  // Sprint dates
-  const dates = tickets.map(t=>t.createdAt).filter(Boolean);
-  let sprintStart='', sprintEnd='', remainingDays=0, totalDays=0;
-  if (dates.length) {
-    sprintStart = dates[dates.length-1]; sprintEnd = dates[0];
-    try {
-      const parseD = d => { const m=d.match(/(\w+),\s+(\w+)\s+(\d+),\s+(\d+)/); return m?new Date(`${m[2]} ${m[3]}, ${m[4]}`):new Date(d); };
-      const s=parseD(sprintStart), e=parseD(sprintEnd), now=new Date();
-      totalDays     = Math.max(1, Math.round((e-s)/86400000));
-      remainingDays = Math.max(0, Math.round((e-now)/86400000));
-    } catch(e){}
+  // Sprint dates — come from the selected sprint dropdown
+  const sprintName  = _selectedSprint ? _selectedSprint.name  : (milestones.length ? milestones[0].name : 'Current Sprint');
+  const sprintStart = _selectedSprint ? _selectedSprint.start : '';
+  const sprintEnd   = _selectedSprint ? _selectedSprint.end   : '';
+  let totalDays = 0, remainingDays = 0;
+  if (_selectedSprint && _selectedSprint.startDate && _selectedSprint.endDate) {
+    const now = new Date();
+    totalDays     = Math.max(1, Math.round((_selectedSprint.endDate - _selectedSprint.startDate) / 86400000));
+    remainingDays = Math.max(0, Math.round((_selectedSprint.endDate - now) / 86400000));
   }
-  const sprintName = milestones.length ? milestones[0].name : 'Current Sprint';
 
   const kpis = [
     { label:'Resolution Rate',     value:resPct,           sub:`${buClosed} of ${buTotal} bug/usab closed`, color:'c-warn'   },
