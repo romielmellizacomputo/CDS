@@ -530,7 +530,7 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
   border: 1px solid var(--border);
 }
 .members-table-scroll {
-  max-height: 380px;
+  max-height: 560px;
   overflow-y: auto;
   overflow-x: auto;
   scrollbar-width: thin;
@@ -745,8 +745,38 @@ function computeMetrics(tickets) {
   const total  = tickets.length;
   const closed = tickets.filter(t => t.status.toLowerCase() === 'closed').length;
   const open   = total - closed;
-  const resPct = total ? ((closed / total) * 100).toFixed(1) + '%' : '0%';
 
+  // ── Exact-match label helpers ──────────────────
+  // Labels are comma-separated; each label is already trimmed in parseTickets.
+  // Use exact case-insensitive match against the full label string.
+  const hasExactLabel = (t, name) =>
+    t.labels.some(l => l.toLowerCase() === name.toLowerCase());
+
+  // isBug: has "Bug-Issue" AND does NOT have "Not a Bug"
+  const isBug = t =>
+    hasExactLabel(t, 'Bug-Issue') && !hasExactLabel(t, 'Not a Bug');
+
+  // isUsability: has "Usability Suggestions"
+  const isUsability = t => hasExactLabel(t, 'Usability Suggestions');
+
+  // isTestCase: has "Test Case"
+  const isTestCase = t => hasExactLabel(t, 'Test Case');
+
+  // getType now uses exact matching
+  const getType = t => {
+    if (isBug(t))        return 'Bug';
+    if (isUsability(t))  return 'Usability';
+    if (isTestCase(t))   return 'Test Case';
+    return 'Other';
+  };
+
+  // Resolution rate: only Bug-Issue + Usability Suggestions tickets
+  const bugAndUsabTickets = tickets.filter(t => isBug(t) || isUsability(t));
+  const buClosed = bugAndUsabTickets.filter(t => t.status.toLowerCase() === 'closed').length;
+  const buTotal  = bugAndUsabTickets.length;
+  const resPct   = buTotal ? ((buClosed / buTotal) * 100).toFixed(1) + '%' : '0%';
+
+  // ── Partial label helpers for other KPIs ──────
   const hasLabel = (t, s) => t.labels.some(l => l.toLowerCase().includes(s.toLowerCase()));
 
   const manualQA = tickets.filter(t => hasLabel(t, 'Manual QA For Review')).length;
@@ -761,10 +791,18 @@ function computeMetrics(tickets) {
   const getPriority = t => {
     for (const l of t.labels) {
       const lc = l.toLowerCase();
-      if (lc.includes('urgent') || lc.includes('urg')) return 'urgent';
-      if (lc.includes('high')) return 'high';
+      if (lc.includes('urgent') || lc === 'urg-priority') return 'urgent';
+      if (lc.includes('high-priority') || lc === 'high') return 'high';
+      if (lc.includes('medium-priority') || lc.includes('med-priority')) return 'medium';
+      if (lc.includes('low-priority') || lc === 'low') return 'low';
+    }
+    // fallback: looser match
+    for (const l of t.labels) {
+      const lc = l.toLowerCase();
+      if (lc.includes('urgent')) return 'urgent';
+      if (lc.includes('high'))   return 'high';
       if (lc.includes('medium') || lc.includes('med')) return 'medium';
-      if (lc.includes('low')) return 'low';
+      if (lc.includes('low'))    return 'low';
     }
     return 'none';
   };
@@ -777,12 +815,6 @@ function computeMetrics(tickets) {
     }
     return 'none';
   };
-  const getType = t => {
-    if (t.labels.some(l => l.toLowerCase().includes('test case')))  return 'Test Case';
-    if (t.labels.some(l => l.toLowerCase().includes('usability'))) return 'Usability';
-    if (t.labels.some(l => l.toLowerCase().includes('bug')))       return 'Bug';
-    return 'Other';
-  };
 
   // Priority × Severity matrix
   const PRIO = ['low','medium','high','urgent'];
@@ -791,19 +823,20 @@ function computeMetrics(tickets) {
   const SL   = { minor:'Minor', major:'Major', critical:'Critical' };
   const priorityCounts = [];
   for (const p of PRIO) for (const s of SEV) {
-    const bugs      = tickets.filter(t => getPriority(t)===p && getSeverity(t)===s && getType(t)==='Bug').length;
-    const usability = tickets.filter(t => getPriority(t)===p && getSeverity(t)===s && getType(t)==='Usability').length;
+    const bugs      = tickets.filter(t => getPriority(t)===p && getSeverity(t)===s && isBug(t)).length;
+    const usability = tickets.filter(t => getPriority(t)===p && getSeverity(t)===s && isUsability(t)).length;
     priorityCounts.push({ label:`${PL[p]}-${SL[s]}`, prio:p, bugs, usability });
   }
 
-  // Milestones
+  // Milestones — exclude "QA Team"
   const msMap = {};
   for (const t of tickets) {
     const m = t.milestone || '(No Milestone)';
+    if (m.trim().toLowerCase() === 'qa team') continue; // skip QA Team milestone
     if (!msMap[m]) msMap[m] = { open:0, closed:0, bugs:0, usability:0 };
     t.status.toLowerCase()==='closed' ? msMap[m].closed++ : msMap[m].open++;
-    if (getType(t)==='Bug')       msMap[m].bugs++;
-    if (getType(t)==='Usability') msMap[m].usability++;
+    if (isBug(t))       msMap[m].bugs++;
+    if (isUsability(t)) msMap[m].usability++;
   }
   const milestones = Object.entries(msMap)
     .map(([name,v]) => ({name,...v}))
@@ -814,7 +847,7 @@ function computeMetrics(tickets) {
     bugs: acc.bugs+m.bugs, usability: acc.usability+m.usability,
   }), {open:0,closed:0,bugs:0,usability:0});
 
-  // Members
+  // Members — total = bug + usability only (Top Reporters counts)
   const memberMap = {};
   const bump = (key, field) => {
     if (!key) return;
@@ -823,11 +856,13 @@ function computeMetrics(tickets) {
   };
   for (const t of tickets) {
     const a    = t.author || 'Unknown';
-    const type = getType(t);
     const prio = getPriority(t);
-    if (type==='Bug')            bump(a,'bug');
-    else if (type==='Usability') bump(a,'usability');
-    else if (type==='Test Case') bump(a,'testCase');
+    const bug  = isBug(t);
+    const usab = isUsability(t);
+    const tc   = isTestCase(t);
+    if (bug)  bump(a,'bug');
+    if (usab) bump(a,'usability');
+    if (tc)   bump(a,'testCase');
     if (t.labels.some(l=>l.toLowerCase().includes('bug review'))) bump(a,'bugReview');
     if (t.reopened.toLowerCase()==='yes') bump(a,'reopen');
     if (t.status.toLowerCase()==='closed') bump(a,'closed');
@@ -835,7 +870,8 @@ function computeMetrics(tickets) {
     if (prio==='medium') bump(a,'med');
     if (prio==='high')   bump(a,'high');
     if (prio==='urgent') bump(a,'urg');
-    bump(a,'total');
+    // total = Bug-Issue + Usability Suggestions only (for Top Reporters)
+    if (bug || usab) bump(a,'total');
   }
   const members = Object.entries(memberMap)
     .map(([name,v]) => ({name,...v}))
@@ -845,21 +881,21 @@ function computeMetrics(tickets) {
     return acc;
   }, {});
 
-  // Distribution
-  const bugCount    = tickets.filter(t=>getType(t)==='Bug').length;
-  const usabCount   = tickets.filter(t=>getType(t)==='Usability').length;
-  const tcCount     = tickets.filter(t=>getType(t)==='Test Case').length;
+  // Distribution — based on exact types
+  const bugCount    = tickets.filter(t=>isBug(t)).length;
+  const usabCount   = tickets.filter(t=>isUsability(t)).length;
+  const tcCount     = tickets.filter(t=>isTestCase(t)).length;
   const bugRevCount = tickets.filter(t=>t.labels.some(l=>l.toLowerCase().includes('bug review'))).length;
   const reopenCount = tickets.filter(t=>t.reopened.toLowerCase()==='yes').length;
-  const distTotal   = bugCount+usabCount+tcCount+bugRevCount+reopenCount+closed;
-  const pct = v => distTotal ? ((v/distTotal)*100).toFixed(1) : 0;
+  const distTotal   = bugCount+usabCount+tcCount+bugRevCount+reopenCount || 1;
+  const pct = v => ((v/distTotal)*100).toFixed(1);
   const donut = [
-    { label:'Test Case',  value:tcCount,    pct:pct(tcCount),    color:'#5b8fff' },
-    { label:'Bug Review', value:bugRevCount,pct:pct(bugRevCount),color:'#00e5a8' },
-    { label:'Bug',        value:bugCount,   pct:pct(bugCount),   color:'#ffb84d' },
-    { label:'Usability',  value:usabCount,  pct:pct(usabCount),  color:'#b07fff' },
-    { label:'Reopen',     value:reopenCount,pct:pct(reopenCount),color:'#ff5577' },
-    { label:'Closed',     value:closed,     pct:pct(closed),     color:'#3a4260' },
+    { label:'Test Case',         value:tcCount,    pct:pct(tcCount),    color:'#5b8fff' },
+    { label:'Bug Review',        value:bugRevCount,pct:pct(bugRevCount),color:'#00e5a8' },
+    { label:'Bug-Issue',         value:bugCount,   pct:pct(bugCount),   color:'#ffb84d' },
+    { label:'Usability Suggest.',value:usabCount,  pct:pct(usabCount),  color:'#b07fff' },
+    { label:'Reopen',            value:reopenCount,pct:pct(reopenCount),color:'#ff5577' },
+    { label:'Closed',            value:closed,     pct:pct(closed),     color:'#3a4260' },
   ];
 
   // Sprint dates
@@ -877,15 +913,15 @@ function computeMetrics(tickets) {
   const sprintName = milestones.length ? milestones[0].name : 'Current Sprint';
 
   const kpis = [
-    { label:'Resolution Rate',       value:resPct,           sub:`${closed} of ${total} closed`,  color:'c-warn'   },
-    { label:'Tickets Created',       value:String(total),    sub:'This sprint',                    color:'c-accent' },
-    { label:'Tickets Closed',        value:String(closed),   sub:`${open} remaining open`,         color:'c-green'  },
-    { label:'For Manual QA Review',  value:String(manualQA), sub:'Pending review',                 color:'c-accent' },
-    { label:'For Automation Review', value:String(autoQA),   sub:'Awaiting automation QA',         color:'c-purple' },
-    { label:'For QA Lead Review',    value:String(leadQA),   sub:'Needs lead sign-off',            color:'c-warn'   },
-    { label:'Reviewed Test Cases',   value:String(reviewed), sub:'Completed reviews',              color:'c-green'  },
-    { label:'Changes Requested',     value:String(changes),  sub:'Revisions needed',               color:'c-danger' },
-    { label:'On Hold',               value:String(onHold),   sub:'Suspended tickets',              color:'c-danger' },
+    { label:'Resolution Rate',     value:resPct,           sub:`${buClosed} of ${buTotal} bug/usab closed`, color:'c-warn'   },
+    { label:'Tickets Created',     value:String(total),    sub:'This sprint',                               color:'c-accent' },
+    { label:'Tickets Closed',      value:String(closed),   sub:`${open} remaining open`,                    color:'c-green'  },
+    { label:'For Manual QA',       value:String(manualQA), sub:'Pending review',                            color:'c-accent' },
+    { label:'For Automation',      value:String(autoQA),   sub:'Awaiting automation QA',                    color:'c-purple' },
+    { label:'For QA Lead',         value:String(leadQA),   sub:'Needs lead sign-off',                       color:'c-warn'   },
+    { label:'Reviewed Test Cases', value:String(reviewed), sub:'Completed reviews',                         color:'c-green'  },
+    { label:'Changes Requested',   value:String(changes),  sub:'Revisions needed',                          color:'c-danger' },
+    { label:'On Hold',             value:String(onHold),   sub:'Suspended tickets',                         color:'c-danger' },
   ];
 
   return {
