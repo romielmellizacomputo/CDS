@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Performance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f14;
+  --surface: #141720;
+  --surface2: #1c2030;
+  --border: #2a2f42;
+  --border-bright: #3d4460;
+  --text: #e8ecf5;
+  --text-muted: #7a84a0;
+  --text-dim: #4a5070;
+  --accent: #4f7cff;
+  --accent2: #00d4a0;
+  --warn: #f5a623;
+  --danger: #ff4f6a;
+  --low: #4f7cff;
+  --med: #a78bfa;
+  --high: #f5a623;
+  --urg: #ff4f6a;
+  --font: 'IBM Plex Sans', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+
+/* CONFIG OVERLAY */
+.config-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; backdrop-filter: blur(4px);
+}
+.config-box {
+  background: var(--surface); border: 1px solid var(--border-bright);
+  border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 520px;
+}
+.config-box h2 { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
+.config-box p { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
+.config-field { margin-bottom: 16px; }
+.config-field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 6px; }
+.config-field input, .config-field select {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 12px; color: var(--text);
+  font-family: var(--mono); font-size: 12px; outline: none;
+  transition: border-color 0.2s;
+}
+.config-field input:focus, .config-field select:focus { border-color: var(--accent); }
+.config-hint { font-size: 11px; color: var(--text-dim); margin-top: 5px; }
+.config-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn-primary {
+  width: 100%; padding: 12px; background: var(--accent); color: #fff;
+  border: none; border-radius: var(--radius); font-family: var(--font);
+  font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 8px;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-secondary {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: var(--radius);
+  padding: 8px 16px; font-family: var(--font); font-size: 12px;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--text); }
+
+/* LOADING */
+.loading-screen {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; gap: 16px;
+}
+.loading-spinner {
+  width: 36px; height: 36px; border: 3px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 13px; color: var(--text-muted); font-family: var(--mono); }
+.loading-sub { font-size: 11px; color: var(--text-dim); }
+
+/* DASHBOARD */
+.dashboard { max-width: 1400px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.card-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
+
+/* HEADER */
+.header-bar {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-logo {
+  width: 40px; height: 40px; background: var(--accent);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 16px; color: #fff; font-family: var(--mono); flex-shrink: 0;
+}
+.brand-name { font-size: 13px; font-weight: 500; }
+.brand-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.sprint-info { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.sprint-label { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.sprint-value { font-size: 13px; font-weight: 500; margin-top: 3px; }
+.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 500; font-family: var(--mono); }
+.tag-version { background: rgba(79,124,255,0.15); color: #7da4ff; border: 1px solid rgba(79,124,255,0.3); }
+.progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+.announce {
+  background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.25);
+  border-radius: var(--radius); padding: 10px 16px; font-size: 12px; color: #7da4ff;
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* KPI CARDS */
+.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; position: relative; overflow: hidden; }
+.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.kpi-card.accent::before { background: var(--accent); }
+.kpi-card.green::before { background: var(--accent2); }
+.kpi-card.warn::before { background: var(--warn); }
+.kpi-card.danger::before { background: var(--danger); }
+.kpi-card.purple::before { background: #a78bfa; }
+.kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
+.kpi-value { font-size: 28px; font-weight: 300; font-family: var(--mono); color: var(--text); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+
+/* TABLES */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { text-align: right; font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); padding: 8px 10px; border-bottom: 1px solid var(--border); }
+thead th:first-child { text-align: left; }
+tbody tr { border-bottom: 1px solid rgba(42,47,66,0.5); transition: background 0.12s; }
+tbody tr:hover { background: rgba(255,255,255,0.025); }
+tbody td { padding: 9px 10px; text-align: right; color: var(--text-muted); font-family: var(--mono); font-size: 12px; }
+tbody td:first-child { text-align: left; font-family: var(--font); font-size: 13px; color: var(--text); }
+tfoot td { padding: 10px 10px; text-align: right; font-weight: 500; font-family: var(--mono); font-size: 12px; color: var(--text); border-top: 1px solid var(--border-bright); }
+tfoot td:first-child { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; }
+.num-zero { color: var(--text-dim) !important; }
+.priority-label { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 500; font-family: var(--mono); }
+.p-low    { background: rgba(79,124,255,0.12); color: #7da4ff; }
+.p-med    { background: rgba(167,139,250,0.12); color: #c4b5fd; }
+.p-high   { background: rgba(245,166,35,0.12);  color: #f5c060; }
+.p-urg    { background: rgba(255,79,106,0.12);  color: #ff8099; }
+
+/* MEMBER TABLE */
+.avatar { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; flex-shrink: 0; margin-right: 8px; vertical-align: middle; }
+.member-cell { display: flex; align-items: center; }
+
+/* CHARTS */
+.bar-track { height: 10px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 2px; }
+.reporter-bar-row { display: grid; grid-template-columns: 140px 1fr 30px; align-items: center; gap: 10px; margin-bottom: 9px; }
+.reporter-name { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.donut-legend { display: flex; flex-direction: column; gap: 10px; }
+.legend-item { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ISSUE LIST */
+.issue-item { padding: 12px 0; border-bottom: 1px solid rgba(42,47,66,0.5); }
+.issue-item:last-child { border-bottom: none; }
+.issue-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.issue-title { font-size: 13px; color: var(--text); line-height: 1.4; }
+.issue-path { font-size: 11px; color: var(--text-dim); margin-top: 3px; font-family: var(--mono); }
+
+/* SECTION */
+.section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* TOOLBAR */
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.error-banner { background: rgba(255,79,106,0.08); border: 1px solid rgba(255,79,106,0.3); border-radius: var(--radius); padding: 12px 16px; font-size: 12px; color: #ff8099; }
+
+@media (max-width: 900px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .header-bar { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- CONFIG OVERLAY -->
+<div class="config-overlay" id="configOverlay">
+  <div class="config-box">
+    <h2>📊 QA Dashboard — Connect to Google Sheets</h2>
+    <p>Enter your Google Sheets API key and Spreadsheet ID to load live data from the "ALL TICKETS" tab.</p>
+
+    <div class="config-field">
+      <label>Google Sheets API Key</label>
+      <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off" />
+      <div class="config-hint">Get one from <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">Google Cloud Console</a> → Enable Sheets API → Create API Key</div>
+    </div>
+
+    <div class="config-field">
+      <label>Spreadsheet ID (LEADS_CDS_ID)</label>
+      <input type="text" id="spreadsheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" autocomplete="off" />
+      <div class="config-hint">Found in the Google Sheets URL: /spreadsheets/d/<strong>THIS_PART</strong>/edit</div>
+    </div>
+
+    <div class="config-row">
+      <div class="config-field">
+        <label>Sheet Tab Name</label>
+        <input type="text" id="sheetName" value="ALL TICKETS" />
+      </div>
+      <div class="config-field">
+        <label>Data Range (headers in row 3)</label>
+        <input type="text" id="dataRange" value="C3:T" />
+      </div>
+    </div>
+
+    <div class="config-field">
+      <label>Sprint Name (optional — auto-detected from data)</label>
+      <input type="text" id="sprintName" placeholder="e.g. 2026 E Sprint" />
+    </div>
+
+    <button class="btn-primary" onclick="loadDashboard()">🚀 Load Dashboard</button>
+
+    <div id="configError" style="display:none;margin-top:12px" class="error-banner"></div>
+  </div>
+</div>
+
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen" style="display:none">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Fetching data from Google Sheets…</div>
+  <div class="loading-sub" id="loadingStatus">Connecting…</div>
+</div>
+
+<!-- DASHBOARD CONTENT -->
+<div id="dashboardRoot" style="display:none"></div>
+
+<script>
+/* ============================================================
+   CONFIG — stored in sessionStorage for convenience
+   ============================================================ */
+const CONFIG_KEY = 'qa_dashboard_config';
+
+const AVATAR_COLORS = ['#4f7cff','#a78bfa','#00d4a0','#f5a623','#ff4f6a','#3dd6f5','#f06292','#aed581','#ffb74d'];
+
+function avatarColor(name) {
+  let h = 0;
+  for (let c of name) h = (h * 31 + c.charCodeAt(0)) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[Math.abs(h)];
+}
+
+function initials(name) {
+  return (name || '').split(' ').slice(0,2).map(w => w[0] || '').join('').toUpperCase();
+}
+
+function n(v) {
+  return (v === 0 || v === '0') ? `<span class="num-zero">—</span>` : v;
+}
+
+/* ============================================================
+   LOAD — entry point from config form
+   ============================================================ */
+async function loadDashboard() {
+  const apiKey       = document.getElementById('apiKey').value.trim();
+  const spreadsheetId = document.getElementById('spreadsheetId').value.trim();
+  const sheetName    = document.getElementById('sheetName').value.trim() || 'ALL TICKETS';
+  const dataRange    = document.getElementById('dataRange').value.trim() || 'C3:T';
+  const sprintName   = document.getElementById('sprintName').value.trim();
+
+  if (!apiKey || !spreadsheetId) {
+    showConfigError('API Key and Spreadsheet ID are required.');
+    return;
+  }
+
+  sessionStorage.setItem(CONFIG_KEY, JSON.stringify({ apiKey, spreadsheetId, sheetName, dataRange, sprintName }));
+  await fetchAndRender({ apiKey, spreadsheetId, sheetName, dataRange, sprintName });
+}
+
+function showConfigError(msg) {
+  const el = document.getElementById('configError');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+
+function setLoading(msg) {
+  document.getElementById('loadingStatus').textContent = msg;
+}
+
+/* ============================================================
+   FETCH from Google Sheets API v4
+   ============================================================ */
+async function fetchSheetData({ apiKey, spreadsheetId, sheetName, dataRange }) {
+  const range = encodeURIComponent(`'${sheetName}'!${dataRange}`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueRenderOption=FORMATTED_VALUE&key=${apiKey}`;
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err?.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  return data.values || [];
+}
+
+/* ============================================================
+   PARSE rows into ticket objects
+   Headers (row 0 of values):
+   ID IID Title Author Assignee Labels Milestone Status
+   Created At Closed At Closed By Project QA Reviewer
+   Reopened? Reopened By Reopened At Local Status Passed On
+   ============================================================ */
+function parseTickets(rows) {
+  if (!rows.length) return [];
+  const headers = rows[0].map(h => h.trim());
+  const idx = h => headers.indexOf(h);
+
+  const I = {
+    id:          idx('ID'),
+    title:       idx('Title'),
+    author:      idx('Author'),
+    assignee:    idx('Assignee'),
+    labels:      idx('Labels'),
+    milestone:   idx('Milestone'),
+    status:      idx('Status'),
+    createdAt:   idx('Created At'),
+    closedAt:    idx('Closed At'),
+    closedBy:    idx('Closed By'),
+    project:     idx('Project'),
+    qaReviewer:  idx('QA Reviewer'),
+    reopened:    idx('Reopened?'),
+    localStatus: idx('Local Status'),
+    passedOn:    idx('Passed On'),
+  };
+
+  return rows.slice(1).map(row => {
+    const g = i => (i >= 0 && i < row.length) ? (row[i] || '').trim() : '';
+    return {
+      id:          g(I.id),
+      title:       g(I.title),
+      author:      g(I.author),
+      assignee:    g(I.assignee),
+      labels:      g(I.labels).split(',').map(l => l.trim()).filter(Boolean),
+      milestone:   g(I.milestone),
+      status:      g(I.status),
+      createdAt:   g(I.createdAt),
+      closedAt:    g(I.closedAt),
+      closedBy:    g(I.closedBy),
+      project:     g(I.project),
+      qaReviewer:  g(I.qaReviewer),
+      reopened:    g(I.reopened),
+      localStatus: g(I.localStatus),
+      passedOn:    g(I.passedOn),
+    };
+  }).filter(t => t.id);
+}
+
+/* ============================================================
+   COMPUTE METRICS from parsed tickets
+   ============================================================ */
+function computeMetrics(tickets, sprintNameOverride) {
+  const total     = tickets.length;
+  const closed    = tickets.filter(t => t.status.toLowerCase() === 'closed').length;
+  const open      = tickets.filter(t => t.status.toLowerCase() !== 'closed').length;
+  const resPct    = total ? ((closed / total) * 100).toFixed(2) + '%' : '0%';
+
+  // Label helpers
+  const hasLabel  = (t, s) => t.labels.some(l => l.toLowerCase().includes(s.toLowerCase()));
+
+  const manualQA  = tickets.filter(t => hasLabel(t, 'Manual QA For Review')).length;
+  const autoQA    = tickets.filter(t => hasLabel(t, 'Automation') || hasLabel(t, 'For Automation')).length;
+  const leadQA    = tickets.filter(t => hasLabel(t, 'QA Lead') || hasLabel(t, 'For QA Lead')).length;
+  const reviewed  = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('reviewed') || hasLabel(t, 'Reviewed Test Case')).length;
+  const changes   = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('changes requested')).length;
+  const onHold    = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('on hold')).length;
+
+  // Priority extraction from labels
+  const getPriority = t => {
+    for (const l of t.labels) {
+      const lc = l.toLowerCase();
+      if (lc.includes('urgent') || lc.includes('urg')) return 'urgent';
+      if (lc.includes('high')) return 'high';
+      if (lc.includes('medium') || lc.includes('med')) return 'medium';
+      if (lc.includes('low')) return 'low';
+    }
+    return 'none';
+  };
+
+  const getSeverity = t => {
+    for (const l of t.labels) {
+      const lc = l.toLowerCase();
+      if (lc.includes('critical')) return 'critical';
+      if (lc.includes('major')) return 'major';
+      if (lc.includes('minor')) return 'minor';
+    }
+    return 'none';
+  };
+
+  const getType = t => {
+    if (t.labels.some(l => l.toLowerCase().includes('test case'))) return 'Test Case';
+    if (t.labels.some(l => l.toLowerCase().includes('usability'))) return 'Usability';
+    if (t.labels.some(l => l.toLowerCase().includes('bug'))) return 'Bug';
+    return 'Other';
+  };
+
+  // Priority x Severity distribution (for bugs + usability)
+  const PRIO  = ['low', 'medium', 'high', 'urgent'];
+  const SEV   = ['minor', 'major', 'critical'];
+  const PRIO_LABELS = { low: 'Low', medium: 'Med', high: 'High', urgent: 'Urg' };
+  const SEV_LABELS  = { minor: 'Minor', major: 'Major', critical: 'Critical' };
+
+  const priorityCounts = [];
+  for (const p of PRIO) {
+    for (const s of SEV) {
+      const bugs       = tickets.filter(t => getPriority(t) === p && getSeverity(t) === s && getType(t) === 'Bug').length;
+      const usability  = tickets.filter(t => getPriority(t) === p && getSeverity(t) === s && getType(t) === 'Usability').length;
+      priorityCounts.push({ label: `${PRIO_LABELS[p]}-${SEV_LABELS[s]}`, bugs, usability });
+    }
+  }
+
+  // Milestones
+  const milestoneMap = {};
+  for (const t of tickets) {
+    const m = t.milestone || '(No Milestone)';
+    if (!milestoneMap[m]) milestoneMap[m] = { open: 0, closed: 0, bugs: 0, usability: 0 };
+    if (t.status.toLowerCase() === 'closed') milestoneMap[m].closed++;
+    else milestoneMap[m].open++;
+    if (getType(t) === 'Bug') milestoneMap[m].bugs++;
+    if (getType(t) === 'Usability') milestoneMap[m].usability++;
+  }
+  const milestones = Object.entries(milestoneMap)
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => (b.open + b.closed) - (a.open + a.closed));
+
+  const msTotal = {
+    open: milestones.reduce((s,m) => s+m.open, 0),
+    closed: milestones.reduce((s,m) => s+m.closed, 0),
+    bugs: milestones.reduce((s,m) => s+m.bugs, 0),
+    usability: milestones.reduce((s,m) => s+m.usability, 0),
+  };
+
+  // Members — keyed by Author
+  const memberMap = {};
+  const bump = (map, key, field, amt=1) => {
+    if (!key) return;
+    if (!map[key]) map[key] = { bug:0, usability:0, bugReview:0, reopen:0, testCase:0, closed:0, low:0, med:0, high:0, urg:0, total:0 };
+    map[key][field] = (map[key][field] || 0) + amt;
+  };
+
+  for (const t of tickets) {
+    const author = t.author || 'Unknown';
+    const type = getType(t);
+    const prio = getPriority(t);
+
+    if (type === 'Bug') bump(memberMap, author, 'bug');
+    else if (type === 'Usability') bump(memberMap, author, 'usability');
+    else if (type === 'Test Case') bump(memberMap, author, 'testCase');
+
+    if (t.labels.some(l => l.toLowerCase().includes('bug review'))) bump(memberMap, author, 'bugReview');
+    if (t.reopened.toLowerCase() === 'yes') bump(memberMap, author, 'reopen');
+    if (t.status.toLowerCase() === 'closed') bump(memberMap, author, 'closed');
+
+    if (prio === 'low')    bump(memberMap, author, 'low');
+    if (prio === 'medium') bump(memberMap, author, 'med');
+    if (prio === 'high')   bump(memberMap, author, 'high');
+    if (prio === 'urgent') bump(memberMap, author, 'urg');
+
+    bump(memberMap, author, 'total');
+  }
+
+  const members = Object.entries(memberMap)
+    .map(([name, v]) => ({ name, ...v }))
+    .sort((a, b) => b.total - a.total);
+
+  const memberTotals = members.reduce((acc, m) => {
+    for (const k of Object.keys(m)) if (k !== 'name') acc[k] = (acc[k]||0) + m[k];
+    return acc;
+  }, {});
+
+  // Top reporters (by total ticket count)
+  const reporters = members.slice(0, 6);
+
+  // Output distribution
+  const bugCount      = tickets.filter(t => getType(t) === 'Bug').length;
+  const usabCount     = tickets.filter(t => getType(t) === 'Usability').length;
+  const tcCount       = tickets.filter(t => getType(t) === 'Test Case').length;
+  const bugRevCount   = tickets.filter(t => t.labels.some(l => l.toLowerCase().includes('bug review'))).length;
+  const reopenCount   = tickets.filter(t => t.reopened.toLowerCase() === 'yes').length;
+  const dist_total    = bugCount + usabCount + tcCount + bugRevCount + reopenCount + closed;
+  const pct = v => dist_total ? ((v/dist_total)*100).toFixed(1) : 0;
+  const donut = [
+    { label: 'Test Case',  value: tcCount,    pct: pct(tcCount),    color: '#4f7cff' },
+    { label: 'Bug Review', value: bugRevCount, pct: pct(bugRevCount),color: '#00d4a0' },
+    { label: 'Bug',        value: bugCount,   pct: pct(bugCount),   color: '#f5a623' },
+    { label: 'Usability',  value: usabCount,  pct: pct(usabCount),  color: '#a78bfa' },
+    { label: 'Reopen',     value: reopenCount,pct: pct(reopenCount),color: '#ff4f6a' },
+    { label: 'Closed',     value: closed,     pct: pct(closed),     color: '#4a5070' },
+  ];
+
+  // Top priority issues (urgent first, then high) — open only
+  const urgent = tickets
+    .filter(t => t.status.toLowerCase() !== 'closed' && (getPriority(t) === 'urgent' || getPriority(t) === 'high'))
+    .sort((a,b) => {
+      const order = {urgent:0, high:1};
+      return (order[getPriority(a)]||2) - (order[getPriority(b)]||2);
+    })
+    .slice(0, 8)
+    .map(t => ({
+      level: getPriority(t) === 'urgent' ? 'Urgent' : 'High',
+      color: getPriority(t) === 'urgent' ? '#ff4f6a' : '#f5a623',
+      label: t.milestone || t.project || '',
+      title: t.title,
+    }));
+
+  // Sprint dates from data
+  const dates = tickets.map(t => t.createdAt).filter(Boolean);
+  let sprintStart = '', sprintEnd = '', remainingDays = 0, totalDays = 0;
+  if (dates.length) {
+    sprintStart = dates[dates.length - 1]; // oldest
+    sprintEnd   = dates[0];                // newest
+    // Try to compute days remaining (simple rough estimate)
+    try {
+      const parseDate = d => {
+        const m = d.match(/(\w+),\s+(\w+)\s+(\d+),\s+(\d+)/);
+        if (m) return new Date(`${m[2]} ${m[3]}, ${m[4]}`);
+        return new Date(d);
+      };
+      const start = parseDate(sprintStart);
+      const end   = parseDate(sprintEnd);
+      const today = new Date();
+      totalDays    = Math.max(1, Math.round((end - start) / 86400000));
+      remainingDays= Math.max(0, Math.round((end - today) / 86400000));
+    } catch(e) {}
+  }
+
+  // Detect sprint name from milestone or override
+  const sprintName = sprintNameOverride ||
+    (milestones.length ? milestones[0].name : 'Current Sprint');
+
+  const kpis = [
+    { label: 'Resolution Rate',       value: resPct,          sub: `${closed} of ${total} tickets closed`,    color: 'warn'   },
+    { label: 'Tickets Created',       value: String(total),   sub: 'This sprint',                             color: 'accent' },
+    { label: 'Tickets Closed',        value: String(closed),  sub: `Progress: ${resPct}`,                     color: 'green'  },
+    { label: 'For Manual QA Review',  value: String(manualQA), sub: 'Pending review',                         color: 'accent' },
+    { label: 'For Automation Review', value: String(autoQA),  sub: 'Awaiting automation QA',                  color: 'purple' },
+    { label: 'For QA Lead Review',    value: String(leadQA),  sub: 'Needs lead sign-off',                     color: 'warn'   },
+    { label: 'Reviewed Test Cases',   value: String(reviewed), sub: 'Completed reviews',                      color: 'green'  },
+    { label: 'Changes Requested',     value: String(changes), sub: 'Revisions needed',                        color: 'danger' },
+    { label: 'On Hold',               value: String(onHold),  sub: 'Suspended tickets',                       color: 'danger' },
+  ];
+
+  return {
+    total, closed, open, kpis,
+    priorityCounts, milestones, msTotal,
+    members, memberTotals, reporters, donut,
+    urgent, sprintName, sprintStart, sprintEnd, totalDays, remainingDays,
+  };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderDashboard(metrics, config) {
+  const { total, closed, kpis, priorityCounts, milestones, msTotal,
+          members, memberTotals, reporters, donut, urgent,
+          sprintName, sprintStart, sprintEnd, totalDays, remainingDays } = metrics;
+
+  const elapsed = totalDays - remainingDays;
+  const pct = totalDays ? Math.round((elapsed / totalDays) * 100) : 0;
+
+  /* ── Header ── */
+  const header = `
+<div class="header-bar">
+  <div class="brand">
+    <div class="brand-logo">QA</div>
+    <div>
+      <div class="brand-name">QA Performance Dashboard</div>
+      <div class="brand-sub">Live data from Google Sheets · ${config.sheetName}</div>
+    </div>
+  </div>
+  <div class="sprint-info">
+    <div><div class="sprint-label">Sprint</div><div class="sprint-value">${sprintName}</div></div>
+    <div><div class="sprint-label">Start</div><div class="sprint-value">${sprintStart || '—'}</div></div>
+    <div><div class="sprint-label">End</div><div class="sprint-value">${sprintEnd || '—'}</div></div>
+    <div style="min-width:100px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:11px;color:var(--text-muted)">${elapsed}d elapsed</span>
+        <span style="font-size:11px;color:var(--warn)">${remainingDays}d left</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-secondary" onclick="document.getElementById('configOverlay').style.display='flex'">⚙ Reconnect</button>
+      <button class="btn-secondary" onclick="refreshData()">↺ Refresh</button>
+    </div>
+  </div>
+</div>
+<div class="announce">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+  Showing live data · ${total} tickets loaded · Last refreshed ${new Date().toLocaleTimeString()}
+</div>`;
+
+  /* ── KPIs ── */
+  const kpiCards = kpis.map(k => `
+<div class="kpi-card ${k.color}">
+  <div class="kpi-label">${k.label}</div>
+  <div class="kpi-value">${k.value}</div>
+  <div class="kpi-sub">${k.sub}</div>
+</div>`).join('');
+  const kpiSection = `
+<div>
+  <div class="section-label">Sprint metrics</div>
+  <div class="grid-auto">${kpiCards}</div>
+</div>`;
+
+  /* ── Priority + Milestones ── */
+  const maxBug = Math.max(...priorityCounts.map(r => r.bugs), 1);
+  const priRows = priorityCounts.map(r => {
+    const bw = Math.round((r.bugs / maxBug) * 100);
+    const uw = Math.round((r.usability / maxBug) * 100);
+    const pcls = r.label.toLowerCase().startsWith('urg') ? 'p-urg'
+               : r.label.toLowerCase().startsWith('high') ? 'p-high'
+               : r.label.toLowerCase().startsWith('med') ? 'p-med' : 'p-low';
+    return `<tr style="display:grid;grid-template-columns:100px 1fr 1fr 50px 50px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(42,47,66,0.4)">
+      <td style="text-align:left;font-family:var(--mono);font-size:11px;padding:0;border:none"><span class="priority-label ${pcls}">${r.label}</span></td>
+      <td style="padding:0;border:none"><div class="bar-track"><div class="bar-fill" style="width:${bw}%;background:var(--warn)"></div></div></td>
+      <td style="padding:0;border:none"><div class="bar-track"><div class="bar-fill" style="width:${uw}%;background:var(--accent)"></div></div></td>
+      <td style="text-align:right;font-family:var(--mono);font-size:11px;color:var(--warn);padding:0;border:none">${n(r.bugs)}</td>
+      <td style="text-align:right;font-family:var(--mono);font-size:11px;color:var(--accent);padding:0;border:none">${n(r.usability)}</td>
+    </tr>`;
+  }).join('');
+  const totalBugs = priorityCounts.reduce((s,r) => s+r.bugs, 0);
+  const totalUsab = priorityCounts.reduce((s,r) => s+r.usability, 0);
+
+  const msRows = milestones.map(m => `
+    <tr>
+      <td>${m.name}</td>
+      <td>${n(m.open)}</td><td>${n(m.closed)}</td><td>${n(m.bugs)}</td><td>${n(m.usability)}</td>
+    </tr>`).join('');
+
+  const prioritySection = `
+<div class="grid-2">
+  <div class="card">
+    <div class="card-title">Bug vs Usability by Priority</div>
+    <div style="display:flex;gap:16px;margin-bottom:10px">
+      <span style="font-size:11px;color:var(--warn)">■ Bug</span>
+      <span style="font-size:11px;color:var(--accent)">■ Usability</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse">
+      <tbody>${priRows}</tbody>
+      <tfoot><tr>
+        <td style="text-align:left;font-size:11px;color:var(--text-dim);padding:8px 0 0">Total</td>
+        <td></td><td></td>
+        <td style="text-align:right;font-size:12px;font-family:var(--mono);color:var(--warn);padding:8px 0 0">${totalBugs}</td>
+        <td style="text-align:right;font-size:12px;font-family:var(--mono);color:var(--accent);padding:8px 0 0">${totalUsab}</td>
+      </tr></tfoot>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">Milestones — Open vs Closed</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="text-align:left">Milestone</th>
+          <th>Open</th><th>Closed</th><th>Bugs</th><th>Usab.</th>
+        </tr></thead>
+        <tbody>${msRows}</tbody>
+        <tfoot><tr>
+          <td>Total</td>
+          <td>${msTotal.open}</td><td>${msTotal.closed}</td>
+          <td>${msTotal.bugs}</td><td>${msTotal.usability}</td>
+        </tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>`;
+
+  /* ── Members ── */
+  const memberRows = members.map(m => {
+    const av = avatarColor(m.name);
+    return `<tr>
+      <td><div class="member-cell"><div class="avatar" style="background:${av}22;color:${av}">${initials(m.name)}</div><span style="font-size:12px">${m.name}</span></div></td>
+      <td>${n(m.bug)}</td><td>${n(m.usability)}</td><td>${n(m.bugReview)}</td><td>${n(m.reopen)}</td>
+      <td>${n(m.testCase)}</td><td>${n(m.closed)}</td>
+      <td style="color:var(--low)">${n(m.low)}</td>
+      <td style="color:var(--med)">${n(m.med)}</td>
+      <td style="color:var(--high)">${n(m.high)}</td>
+      <td style="color:var(--urg)">${n(m.urg)}</td>
+      <td style="font-weight:500;color:var(--text)">${m.total}</td>
+    </tr>`;
+  }).join('');
+  const t = memberTotals;
+  const membersSection = `
+<div class="card">
+  <div class="card-title">Output Summary — Members</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th style="text-align:left">Member</th>
+        <th>Bug</th><th>Usab.</th><th>Bug Rev.</th><th>Reopen</th>
+        <th>Test Case</th><th>Closed</th>
+        <th style="color:var(--low)">Low</th>
+        <th style="color:var(--med)">Med</th>
+        <th style="color:var(--high)">High</th>
+        <th style="color:var(--urg)">Urg</th>
+        <th>Total</th>
+      </tr></thead>
+      <tbody>${memberRows}</tbody>
+      <tfoot><tr>
+        <td>Total</td>
+        <td>${t.bug||0}</td><td>${t.usability||0}</td><td>${t.bugReview||0}</td><td>${t.reopen||0}</td>
+        <td>${t.testCase||0}</td><td>${t.closed||0}</td>
+        <td>${t.low||0}</td><td>${t.med||0}</td><td>${t.high||0}</td><td>${t.urg||0}</td>
+        <td>${t.total||0}</td>
+      </tr></tfoot>
+    </table>
+  </div>
+</div>`;
+
+  /* ── Charts + Top Priority ── */
+  const maxR = Math.max(...reporters.map(r => r.total), 1);
+  const reporterBars = reporters.map((r, i) => {
+    const w = Math.round((r.total / maxR) * 100);
+    const col = AVATAR_COLORS[i % AVATAR_COLORS.length];
+    return `<div class="reporter-bar-row">
+      <div class="reporter-name">${r.name}</div>
+      <div class="bar-track" style="height:12px"><div class="bar-fill" style="width:${w}%;background:${col}"></div></div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text-muted);text-align:right">${r.total}</div>
+    </div>`;
+  }).join('');
+
+  const dist_total = donut.reduce((s,d) => s+d.value, 0);
+  const legendItems = donut.map(d => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${d.color}"></div>
+      <div style="flex:1;font-size:12px;color:var(--text-muted)">${d.label}</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--text)">${d.value}</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);min-width:40px;text-align:right">${d.pct}%</div>
+    </div>`).join('');
+
+  const urgItems = urgent.length ? urgent.map(i => `
+    <div class="issue-item">
+      <div class="issue-meta">
+        <span class="tag" style="background:${i.color}22;color:${i.color};border:1px solid ${i.color}44;font-size:10px;padding:2px 7px">${i.level}</span>
+      </div>
+      <div class="issue-title">${i.title}</div>
+      <div class="issue-path">${i.label}</div>
+    </div>`).join('')
+  : `<div style="font-size:12px;color:var(--text-dim);padding:16px 0">No urgent/high priority open tickets.</div>`;
+
+  const chartsSection = `
+<div class="grid-3">
+  <div class="card">
+    <div class="card-title">Top reporters</div>
+    ${reporterBars}
+  </div>
+  <div class="card">
+    <div class="card-title">Output distribution</div>
+    <div class="donut-legend">${legendItems}</div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">
+        <span>Total tickets</span>
+        <span style="font-family:var(--mono);color:var(--text)">${dist_total}</span>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Top priority issues</div>
+    ${urgItems}
+  </div>
+</div>`;
+
+  const footer = `<div style="text-align:center;padding:24px 0 8px;font-size:11px;color:var(--text-dim)">
+    QA Performance Dashboard · Live · ${config.sheetName} · ${new Date().toLocaleDateString()}
+  </div>`;
+
+  document.getElementById('dashboardRoot').innerHTML = `
+<div class="dashboard">
+  ${header}
+  ${kpiSection}
+  ${prioritySection}
+  ${membersSection}
+  ${chartsSection}
+  ${footer}
+</div>`;
+}
+
+/* ============================================================
+   ORCHESTRATOR
+   ============================================================ */
+async function fetchAndRender(config) {
+  document.getElementById('configOverlay').style.display = 'none';
+  document.getElementById('loadingScreen').style.display = 'flex';
+  document.getElementById('dashboardRoot').style.display = 'none';
+
+  try {
+    setLoading('Fetching sheet data…');
+    const rows = await fetchSheetData(config);
+
+    if (!rows || rows.length < 2) {
+      throw new Error('No data found. Check sheet name and range.');
+    }
+
+    setLoading(`Parsing ${rows.length - 1} ticket(s)…`);
+    const tickets = parseTickets(rows);
+
+    if (!tickets.length) {
+      throw new Error('Could not parse any tickets from the data. Check that row 3 contains the headers.');
+    }
+
+    setLoading('Computing metrics…');
+    const metrics = computeMetrics(tickets, config.sprintName);
+
+    setLoading('Rendering dashboard…');
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('dashboardRoot').style.display = 'block';
+    renderDashboard(metrics, config);
+
+  } catch (err) {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('configOverlay').style.display = 'flex';
+    showConfigError(err.message || String(err));
+    console.error(err);
+  }
+}
+
+async function refreshData() {
+  const raw = sessionStorage.getItem(CONFIG_KEY);
+  if (!raw) return;
+  await fetchAndRender(JSON.parse(raw));
+}
+
+/* Auto-restore config from session */
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    const saved = sessionStorage.getItem(CONFIG_KEY);
+    if (saved) {
+      const c = JSON.parse(saved);
+      document.getElementById('apiKey').value = c.apiKey || '';
+      document.getElementById('spreadsheetId').value = c.spreadsheetId || '';
+      document.getElementById('sheetName').value = c.sheetName || 'ALL TICKETS';
+      document.getElementById('dataRange').value = c.dataRange || 'C3:T';
+      document.getElementById('sprintName').value = c.sprintName || '';
+    }
+  } catch(e) {}
+});
+</script>
+</body>
+</html>
