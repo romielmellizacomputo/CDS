@@ -33,9 +33,7 @@
   --r-lg: 16px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { scroll-behavior: smooth; }
-
 body {
   font-family: var(--font);
   background: var(--bg);
@@ -45,8 +43,6 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
-
-/* ── Noise texture overlay ── */
 body::before {
   content: '';
   position: fixed;
@@ -56,8 +52,6 @@ body::before {
   z-index: 0;
   opacity: 0.5;
 }
-
-/* ── Grid lines background ── */
 body::after {
   content: '';
   position: fixed;
@@ -70,9 +64,7 @@ body::after {
   z-index: 0;
 }
 
-/* ══════════════════════════════════════
-   LOGIN SCREEN
-══════════════════════════════════════ */
+/* ── LOGIN ── */
 #loginScreen {
   position: fixed; inset: 0;
   display: flex; flex-direction: column;
@@ -80,7 +72,6 @@ body::after {
   z-index: 100; gap: 0;
   background: var(--bg);
 }
-
 .login-card {
   position: relative;
   background: var(--surface);
@@ -92,7 +83,6 @@ body::after {
   box-shadow: 0 0 80px rgba(91,143,255,0.08), 0 0 0 1px rgba(91,143,255,0.1);
   animation: fadeUp 0.6s ease both;
 }
-
 .login-card::before {
   content: '';
   position: absolute;
@@ -101,12 +91,10 @@ body::after {
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
   border-radius: 2px;
 }
-
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 .login-logo {
   width: 64px; height: 64px;
   background: linear-gradient(135deg, var(--accent), #3a6de0);
@@ -117,27 +105,11 @@ body::after {
   color: #fff;
   box-shadow: 0 8px 32px rgba(91,143,255,0.3);
 }
-
-.login-title {
-  font-size: 22px; font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
-
-.login-sub {
-  font-size: 13px; color: var(--text-muted);
-  margin-bottom: 32px; line-height: 1.5;
-}
-
-.login-divider {
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 24px;
-}
-.login-divider::before, .login-divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
-}
+.login-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+.login-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 32px; line-height: 1.5; }
+.login-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .login-divider span { font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
-
 #googleSignInBtn {
   width: 100%;
   display: flex; align-items: center; justify-content: center; gap: 12px;
@@ -150,59 +122,34 @@ body::after {
   cursor: pointer;
   transition: all 0.2s;
 }
-#googleSignInBtn:hover {
-  background: var(--surface3);
-  border-color: var(--accent);
-  box-shadow: 0 0 20px rgba(91,143,255,0.12);
-}
+#googleSignInBtn:hover { background: var(--surface3); border-color: var(--accent); box-shadow: 0 0 20px rgba(91,143,255,0.12); }
 #googleSignInBtn svg { flex-shrink: 0; }
-
-.login-note {
-  margin-top: 20px;
-  font-size: 11px; color: var(--text-dim); line-height: 1.6;
-}
-
+.login-note { margin-top: 20px; font-size: 11px; color: var(--text-dim); line-height: 1.6; }
 #loginError {
-  display: none;
-  margin-top: 16px;
-  padding: 10px 14px;
-  background: rgba(255,85,119,0.08);
-  border: 1px solid rgba(255,85,119,0.25);
-  border-radius: var(--r);
-  font-size: 12px; color: #ff8099;
-  text-align: left;
+  display: none; margin-top: 16px; padding: 10px 14px;
+  background: rgba(255,85,119,0.08); border: 1px solid rgba(255,85,119,0.25);
+  border-radius: var(--r); font-size: 12px; color: #ff8099; text-align: left;
 }
 
-/* ══════════════════════════════════════
-   LOADING
-══════════════════════════════════════ */
+/* ── LOADING ── */
 #loadingScreen {
   position: fixed; inset: 0;
   display: none; flex-direction: column;
   align-items: center; justify-content: center;
-  z-index: 99; gap: 20px;
-  background: var(--bg);
+  z-index: 99; gap: 20px; background: var(--bg);
 }
-
 .loader-ring {
   width: 48px; height: 48px;
-  border: 3px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  border: 3px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.75s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
 .loader-text { font-family: var(--mono); font-size: 13px; color: var(--text-muted); }
 .loader-sub  { font-size: 11px; color: var(--text-dim); }
 
-/* ══════════════════════════════════════
-   DASHBOARD LAYOUT
-══════════════════════════════════════ */
+/* ── DASHBOARD ── */
 #dashboardRoot { display: none; position: relative; z-index: 1; }
-
 .dash { max-width: 1440px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 16px; }
-
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 .grid-2 > .card { height: 100%; }
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
@@ -210,15 +157,11 @@ body::after {
 
 /* ── Cards ── */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 22px;
-  position: relative;
-  transition: border-color 0.2s;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 22px;
+  position: relative; transition: border-color 0.2s;
 }
 .card:hover { border-color: var(--border-bright); }
-
 .card-title {
   font-size: 10px; font-weight: 600;
   letter-spacing: 0.12em; text-transform: uppercase;
@@ -227,15 +170,11 @@ body::after {
 
 /* ── Header ── */
 .topbar {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 18px 24px;
-  display: flex; align-items: center;
-  justify-content: space-between;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 18px 24px;
+  display: flex; align-items: center; justify-content: space-between;
   gap: 20px; flex-wrap: wrap;
 }
-
 .brand { display: flex; align-items: center; gap: 14px; }
 .brand-logo {
   width: 44px; height: 44px;
@@ -243,24 +182,18 @@ body::after {
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--mono); font-size: 15px; font-weight: 500; color: #fff;
-  box-shadow: 0 4px 16px rgba(91,143,255,0.25);
-  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(91,143,255,0.25); flex-shrink: 0;
 }
 .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
 .brand-sub  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-
 .sprint-meta { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
 .meta-block .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
 .meta-block .val   { font-size: 13px; font-weight: 500; margin-top: 2px; }
-
 .progress-track { height: 5px; background: var(--surface2); border-radius: 3px; margin-top: 6px; width: 120px; overflow: hidden; }
 .progress-fill  { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width 1s ease; }
-
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
-
 .user-chip {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 12px;
+  display: flex; align-items: center; gap: 8px; padding: 6px 12px;
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 999px; font-size: 12px; color: var(--text-muted);
 }
@@ -270,7 +203,6 @@ body::after {
   align-items: center; justify-content: center;
   font-size: 9px; font-weight: 600; color: #fff;
 }
-
 .btn {
   padding: 8px 16px;
   background: var(--surface2); border: 1px solid var(--border);
@@ -281,47 +213,31 @@ body::after {
 .btn:hover { border-color: var(--accent); color: var(--text); }
 .btn-danger:hover { border-color: var(--danger); color: var(--danger); }
 
-/* ── Announce banner ── */
+/* ── Announce ── */
 .announce {
-  background: rgba(91,143,255,0.06);
-  border: 1px solid rgba(91,143,255,0.2);
-  border-radius: var(--r);
-  padding: 10px 16px;
+  background: rgba(91,143,255,0.06); border: 1px solid rgba(91,143,255,0.2);
+  border-radius: var(--r); padding: 10px 16px;
   font-size: 12px; color: #7da4ff;
   display: flex; align-items: center; gap: 10px;
 }
 .announce-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent2);
-  box-shadow: 0 0 6px var(--accent2);
-  flex-shrink: 0;
-  animation: pulse 2s ease infinite;
+  background: var(--accent2); box-shadow: 0 0 6px var(--accent2);
+  flex-shrink: 0; animation: pulse 2s ease infinite;
 }
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-/* ── KPI cards ── */
+/* ── KPIs ── */
 .kpi {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 20px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px;
   position: relative; overflow: hidden;
-}
-.kpi::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0; height: 1px;
-  opacity: 0.6;
 }
 .kpi.c-accent  { border-top: 2px solid var(--accent);  }
 .kpi.c-green   { border-top: 2px solid var(--accent2); }
 .kpi.c-warn    { border-top: 2px solid var(--warn);    }
 .kpi.c-danger  { border-top: 2px solid var(--danger);  }
 .kpi.c-purple  { border-top: 2px solid var(--purple);  }
-
 .kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; font-weight: 600; }
 .kpi-value { font-family: var(--mono); font-size: 30px; font-weight: 400; line-height: 1; color: var(--text); }
 .kpi-sub   { font-size: 11px; color: var(--text-dim); margin-top: 10px; }
@@ -345,29 +261,16 @@ thead th {
   border-bottom: 1px solid var(--border);
 }
 thead th:first-child { text-align: left; }
-tbody tr {
-  border-bottom: 1px solid rgba(37,43,66,0.6);
-  transition: background 0.12s;
-}
+tbody tr { border-bottom: 1px solid rgba(37,43,66,0.6); transition: background 0.12s; }
 tbody tr:hover { background: rgba(255,255,255,0.02); }
-tbody td {
-  padding: 9px 10px; text-align: right;
-  color: var(--text-muted); font-family: var(--mono); font-size: 12px;
-}
-tbody td:first-child {
-  text-align: left; font-family: var(--font);
-  font-size: 13px; color: var(--text);
-}
+tbody td { padding: 9px 10px; text-align: right; color: var(--text-muted); font-family: var(--mono); font-size: 12px; }
+tbody td:first-child { text-align: left; font-family: var(--font); font-size: 13px; color: var(--text); }
 tfoot td {
   padding: 10px 10px; text-align: right;
   font-weight: 500; font-family: var(--mono); font-size: 12px;
   color: var(--text); border-top: 1px solid var(--border-bright);
 }
-tfoot td:first-child {
-  text-align: left; font-size: 10px;
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-
+tfoot td:first-child { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; }
 .zero { color: var(--text-dim) !important; }
 
 /* ── Priority labels ── */
@@ -393,7 +296,6 @@ tfoot td:first-child {
 /* ── Bar charts ── */
 .bar-track { height: 8px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
 .bar-fill  { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
-
 .rep-row { display: grid; grid-template-columns: 130px 1fr 36px; align-items: center; gap: 10px; margin-bottom: 10px; }
 .rep-name { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -406,10 +308,8 @@ tfoot td:first-child {
 
 /* ── Priority matrix ── */
 .matrix-row {
-  display: grid;
-  grid-template-columns: 110px 1fr 1fr 44px 44px;
-  align-items: center; gap: 8px;
-  padding: 5px 0;
+  display: grid; grid-template-columns: 110px 1fr 1fr 44px 44px;
+  align-items: center; gap: 8px; padding: 5px 0;
   border-bottom: 1px solid rgba(37,43,66,0.5);
 }
 .matrix-row:last-child { border-bottom: none; }
@@ -424,31 +324,233 @@ tfoot td:first-child {
 /* ── Animations ── */
 .fade-in { animation: fadeIn 0.5s ease both; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
 .slide-up { animation: slideUp 0.5s ease both; }
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+@keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Error banner ── */
 .err-banner {
-  background: rgba(255,85,119,0.08);
-  border: 1px solid rgba(255,85,119,0.25);
+  background: rgba(255,85,119,0.08); border: 1px solid rgba(255,85,119,0.25);
   border-radius: var(--r); padding: 12px 16px;
   font-size: 12px; color: #ff8099;
 }
+
+/* ══════════════════════════════════
+   MEMBERS SECTION — NEW STYLES
+══════════════════════════════════ */
+.members-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 22px;
+  position: relative; transition: border-color 0.2s;
+}
+.members-card:hover { border-color: var(--border-bright); }
+
+.members-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.members-header-left {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim);
+  display: flex; align-items: center; gap: 10px;
+}
+.members-count-badge {
+  font-family: var(--mono); font-size: 10px;
+  padding: 2px 7px; border-radius: 4px;
+  background: rgba(91,143,255,0.1); color: var(--accent);
+  border: 1px solid rgba(91,143,255,0.2);
+  letter-spacing: 0;
+}
+
+.members-controls {
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* Search input */
+.members-search-wrap {
+  position: relative; display: flex; align-items: center;
+}
+.members-search-wrap svg {
+  position: absolute; left: 10px; pointer-events: none;
+  color: var(--text-dim);
+}
+.members-search {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 7px 12px 7px 32px;
+  color: var(--text); font-family: var(--font); font-size: 12px;
+  width: 200px; transition: all 0.2s; outline: none;
+}
+.members-search::placeholder { color: var(--text-dim); }
+.members-search:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(91,143,255,0.08);
+  background: var(--surface3);
+  width: 240px;
+}
+
+/* Filter button */
+.filter-btn {
+  position: relative;
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 13px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); color: var(--text-muted);
+  font-family: var(--font); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(91,143,255,0.08); }
+.filter-active-dot {
+  display: none; position: absolute; top: -3px; right: -3px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent2); box-shadow: 0 0 6px var(--accent2);
+  border: 1px solid var(--bg);
+}
+.filter-active-dot.show { display: block; }
+
+/* Filter dropdown */
+.filter-dropdown {
+  display: none; position: absolute;
+  top: calc(100% + 8px); right: 0;
+  width: 260px;
+  background: var(--surface2); border: 1px solid var(--border-bright);
+  border-radius: var(--r-lg);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(91,143,255,0.08);
+  z-index: 50; overflow: hidden;
+  animation: dropIn 0.18s ease both;
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.filter-dropdown.open { display: block; }
+
+.filter-dropdown-header {
+  padding: 14px 16px 10px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.filter-clear-btn {
+  font-size: 10px; color: var(--accent); cursor: pointer;
+  letter-spacing: 0; text-transform: none; font-weight: 500;
+  padding: 0; background: none; border: none; font-family: var(--font);
+}
+.filter-clear-btn:hover { color: var(--text); }
+
+.filter-group-label {
+  padding: 10px 16px 6px;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.filter-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 16px; cursor: pointer;
+  transition: background 0.12s;
+}
+.filter-option:hover { background: rgba(255,255,255,0.03); }
+.filter-option input[type=checkbox] { display: none; }
+.filter-checkbox {
+  width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+  border: 1px solid var(--border-bright); background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.filter-option.checked .filter-checkbox {
+  background: var(--accent); border-color: var(--accent);
+}
+.filter-option.checked .filter-checkbox::after {
+  content: '';
+  width: 9px; height: 5px;
+  border-left: 2px solid #fff; border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.filter-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.filter-option-label { font-size: 12px; color: var(--text-muted); flex: 1; }
+.filter-option.checked .filter-option-label { color: var(--text); }
+.filter-option-count {
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+}
+
+.filter-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+.filter-dropdown-footer {
+  padding: 10px 16px 12px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 8px;
+}
+.filter-apply-btn {
+  flex: 1; padding: 8px;
+  background: var(--accent); border: none; border-radius: var(--r);
+  color: #fff; font-family: var(--font); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.filter-apply-btn:hover { opacity: 0.85; }
+
+/* Scrollable table body */
+.members-table-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.members-table-scroll {
+  max-height: 380px;
+  overflow-y: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-bright) transparent;
+}
+.members-table-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+.members-table-scroll::-webkit-scrollbar-track { background: transparent; }
+.members-table-scroll::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+.members-table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Sticky header inside scroll */
+.members-table-scroll table thead th {
+  position: sticky; top: 0; z-index: 2;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border-bright);
+}
+
+.members-tfoot-wrap {
+  border-top: 1px solid var(--border-bright);
+  background: var(--surface2);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.members-tfoot-wrap::-webkit-scrollbar { display: none; }
+
+/* No results state */
+.no-results {
+  padding: 32px; text-align: center;
+  font-size: 13px; color: var(--text-dim);
+}
+.no-results svg { opacity: 0.3; margin-bottom: 10px; }
+
+/* Members footer meta */
+.members-footer-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 10px; font-size: 11px; color: var(--text-dim);
+}
+.members-showing { font-family: var(--mono); }
 
 @media (max-width: 900px) {
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .topbar { flex-direction: column; align-items: flex-start; }
   .sprint-meta { gap: 16px; }
+  .members-controls { flex-wrap: wrap; }
+  .members-search { width: 160px; }
+  .members-search:focus { width: 180px; }
 }
 </style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══ -->
+<!-- LOGIN -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">QA</div>
@@ -472,148 +574,89 @@ tfoot td:first-child {
   </div>
 </div>
 
-<!-- ══ LOADING ══ -->
+<!-- LOADING -->
 <div id="loadingScreen">
   <div class="loader-ring"></div>
   <div class="loader-text">Loading dashboard data…</div>
   <div class="loader-sub" id="loadStatus">Connecting to Google Sheets…</div>
 </div>
 
-<!-- ══ DASHBOARD ══ -->
+<!-- DASHBOARD -->
 <div id="dashboardRoot"></div>
 
 <script>
 /* ══════════════════════════════════════════════════
    CONSTANTS
 ══════════════════════════════════════════════════ */
-const CLIENT_ID      = '972002611239-cgrk0bk448av6d6fen10rhbm7cpf9rvu.apps.googleusercontent.com';
-const SHEET_ID       = '1HStlB0xNjCJWScZ35e_e1c7YxZ06huNqznfVUc-ZE5k';
-const SHEET_TAB      = 'ALL TICKETS';
-const DATA_RANGE     = 'C3:T';
-const SCOPES         = 'https://www.googleapis.com/auth/spreadsheets.readonly';
-
-const AVATAR_COLORS  = ['#5b8fff','#b07fff','#00e5a8','#ffb84d','#ff5577','#3dd6f5','#f06292','#aed581','#ffb74d'];
-
+const CLIENT_ID  = '972002611239-cgrk0bk448av6d6fen10rhbm7cpf9rvu.apps.googleusercontent.com';
+const SHEET_ID   = '1HStlB0xNjCJWScZ35e_e1c7YxZ06huNqznfVUc-ZE5k';
+const SHEET_TAB  = 'ALL TICKETS';
+const DATA_RANGE = 'C3:T';
+const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets.readonly';
+const AVATAR_COLORS = ['#5b8fff','#b07fff','#00e5a8','#ffb84d','#ff5577','#3dd6f5','#f06292','#aed581','#ffb74d'];
 
 let accessToken = null;
 let currentUser = { name: 'User', email: '', initials: 'U' };
-
 const STORAGE_KEY = 'qa_dash_session';
 
+/* ── Session helpers ── */
 function saveSession() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      accessToken, user: currentUser, savedAt: Date.now()
-    }));
-  } catch(e) {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ accessToken, user: currentUser, savedAt: Date.now() })); } catch(e) {}
 }
-
 function loadSession() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return false;
     const s = JSON.parse(raw);
-    // Access tokens expire in 1hr — treat anything older than 55min as stale
-    if (!s.accessToken || (Date.now() - s.savedAt) > 55 * 60 * 1000) {
-      localStorage.removeItem(STORAGE_KEY);
-      return false;
-    }
-    accessToken = s.accessToken;
-    currentUser = s.user || currentUser;
-    return true;
+    if (!s.accessToken || (Date.now() - s.savedAt) > 55*60*1000) { localStorage.removeItem(STORAGE_KEY); return false; }
+    accessToken = s.accessToken; currentUser = s.user || currentUser; return true;
   } catch(e) { return false; }
 }
-
-function clearSession() {
-  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
-}
+function clearSession() { try { localStorage.removeItem(STORAGE_KEY); } catch(e) {} }
 
 /* ══════════════════════════════════════════════════
-   OAUTH — Google Identity Services (GIS)
+   OAUTH
 ══════════════════════════════════════════════════ */
 let tokenClient = null;
-
 const GOOGLE_BTN_HTML = '<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Sign in with Google';
 
 function startOAuth() {
   const btn = document.getElementById('googleSignInBtn');
-  btn.disabled = true;
-  btn.textContent = 'Connecting…';
-
+  btn.disabled = true; btn.textContent = 'Connecting…';
   if (typeof google === 'undefined' || !google.accounts) {
-    showLoginError('Google Sign-In library not loaded. Please refresh the page.');
-    resetSignInBtn();
-    return;
+    showLoginError('Google Sign-In library not loaded. Please refresh.'); resetSignInBtn(); return;
   }
-
   if (!tokenClient) {
     tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
+      client_id: CLIENT_ID, scope: SCOPES,
       callback: handleTokenResponse,
-      error_callback: (err) => {
-        showLoginError('Sign-in failed: ' + (err.message || JSON.stringify(err)));
-        resetSignInBtn();
-      }
+      error_callback: (err) => { showLoginError('Sign-in failed: ' + (err.message || JSON.stringify(err))); resetSignInBtn(); }
     });
   }
-
-  // Empty prompt = silent re-auth if Google already has active session
   tokenClient.requestAccessToken({ prompt: '' });
 }
-
 function handleTokenResponse(resp) {
-  if (resp.error) {
-    showLoginError('Authentication error: ' + resp.error);
-    resetSignInBtn();
-    return;
-  }
+  if (resp.error) { showLoginError('Authentication error: ' + resp.error); resetSignInBtn(); return; }
   accessToken = resp.access_token;
-
-  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: 'Bearer ' + accessToken }
-  })
-  .then(r => r.json())
-  .then(info => {
-    currentUser.name     = info.name || info.email || 'User';
-    currentUser.email    = info.email || '';
-    currentUser.initials = (info.name || 'U').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-    saveSession();
-    loadDashboard();
-  })
-  .catch(() => { saveSession(); loadDashboard(); });
+  fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + accessToken } })
+    .then(r => r.json())
+    .then(info => {
+      currentUser.name     = info.name || info.email || 'User';
+      currentUser.email    = info.email || '';
+      currentUser.initials = (info.name || 'U').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+      saveSession(); loadDashboard();
+    }).catch(() => { saveSession(); loadDashboard(); });
 }
-
-function resetSignInBtn() {
-  const btn = document.getElementById('googleSignInBtn');
-  btn.disabled = false;
-  btn.innerHTML = GOOGLE_BTN_HTML;
-}
-
-function showLoginError(msg) {
-  const el = document.getElementById('loginError');
-  el.textContent = '⚠ ' + msg;
-  el.style.display = 'block';
-}
-
+function resetSignInBtn() { const btn = document.getElementById('googleSignInBtn'); btn.disabled = false; btn.innerHTML = GOOGLE_BTN_HTML; }
+function showLoginError(msg) { const el = document.getElementById('loginError'); el.textContent = '⚠ ' + msg; el.style.display = 'block'; }
 function signOut() {
-  if (accessToken && typeof google !== 'undefined') {
-    google.accounts.oauth2.revoke(accessToken, () => {});
-  }
-  accessToken = null;
-  clearSession();
+  if (accessToken && typeof google !== 'undefined') google.accounts.oauth2.revoke(accessToken, () => {});
+  accessToken = null; clearSession();
   document.getElementById('dashboardRoot').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   resetSignInBtn();
 }
-
-/* ── Auto-restore session on page load ── */
-window.addEventListener('DOMContentLoaded', () => {
-  if (loadSession()) {
-    loadDashboard();
-  }
-});
-
+window.addEventListener('DOMContentLoaded', () => { if (loadSession()) loadDashboard(); });
 
 /* ══════════════════════════════════════════════════
    FETCH SHEET DATA
@@ -621,20 +664,9 @@ window.addEventListener('DOMContentLoaded', () => {
 async function fetchSheetData() {
   const range = encodeURIComponent(`'${SHEET_TAB}'!${DATA_RANGE}`);
   const url   = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueRenderOption=FORMATTED_VALUE`;
-
-  const res = await fetch(url, {
-    headers: { Authorization: 'Bearer ' + accessToken }
-  });
-
-  if (res.status === 401) {
-    signOut();
-    throw new Error('Session expired. Please sign in again.');
-  }
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `HTTP ${res.status}`);
-  }
-
+  const res   = await fetch(url, { headers: { Authorization: 'Bearer ' + accessToken } });
+  if (res.status === 401) { signOut(); throw new Error('Session expired. Please sign in again.'); }
+  if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err?.error?.message || `HTTP ${res.status}`); }
   const data = await res.json();
   return data.values || [];
 }
@@ -646,43 +678,22 @@ function parseTickets(rows) {
   if (!rows.length) return [];
   const headers = rows[0].map(h => h.trim());
   const idx = h => headers.indexOf(h);
-
   const I = {
-    id:          idx('ID'),
-    title:       idx('Title'),
-    author:      idx('Author'),
-    assignee:    idx('Assignee'),
-    labels:      idx('Labels'),
-    milestone:   idx('Milestone'),
-    status:      idx('Status'),
-    createdAt:   idx('Created At'),
-    closedAt:    idx('Closed At'),
-    closedBy:    idx('Closed By'),
-    project:     idx('Project'),
-    qaReviewer:  idx('QA Reviewer'),
-    reopened:    idx('Reopened?'),
-    localStatus: idx('Local Status'),
-    passedOn:    idx('Passed On'),
+    id: idx('ID'), title: idx('Title'), author: idx('Author'), assignee: idx('Assignee'),
+    labels: idx('Labels'), milestone: idx('Milestone'), status: idx('Status'),
+    createdAt: idx('Created At'), closedAt: idx('Closed At'), closedBy: idx('Closed By'),
+    project: idx('Project'), qaReviewer: idx('QA Reviewer'), reopened: idx('Reopened?'),
+    localStatus: idx('Local Status'), passedOn: idx('Passed On'),
   };
-
   return rows.slice(1).map(row => {
     const g = i => (i >= 0 && i < row.length) ? (row[i] || '').trim() : '';
     return {
-      id:          g(I.id),
-      title:       g(I.title),
-      author:      g(I.author),
-      assignee:    g(I.assignee),
-      labels:      g(I.labels).split(',').map(l => l.trim()).filter(Boolean),
-      milestone:   g(I.milestone),
-      status:      g(I.status),
-      createdAt:   g(I.createdAt),
-      closedAt:    g(I.closedAt),
-      closedBy:    g(I.closedBy),
-      project:     g(I.project),
-      qaReviewer:  g(I.qaReviewer),
-      reopened:    g(I.reopened),
-      localStatus: g(I.localStatus),
-      passedOn:    g(I.passedOn),
+      id: g(I.id), title: g(I.title), author: g(I.author), assignee: g(I.assignee),
+      labels: g(I.labels).split(',').map(l => l.trim()).filter(Boolean),
+      milestone: g(I.milestone), status: g(I.status), createdAt: g(I.createdAt),
+      closedAt: g(I.closedAt), closedBy: g(I.closedBy), project: g(I.project),
+      qaReviewer: g(I.qaReviewer), reopened: g(I.reopened),
+      localStatus: g(I.localStatus), passedOn: g(I.passedOn),
     };
   }).filter(t => t.id);
 }
@@ -691,10 +702,10 @@ function parseTickets(rows) {
    COMPUTE METRICS
 ══════════════════════════════════════════════════ */
 function computeMetrics(tickets) {
-  const total   = tickets.length;
-  const closed  = tickets.filter(t => t.status.toLowerCase() === 'closed').length;
-  const open    = total - closed;
-  const resPct  = total ? ((closed / total) * 100).toFixed(1) + '%' : '0%';
+  const total  = tickets.length;
+  const closed = tickets.filter(t => t.status.toLowerCase() === 'closed').length;
+  const open   = total - closed;
+  const resPct = total ? ((closed / total) * 100).toFixed(1) + '%' : '0%';
 
   const hasLabel = (t, s) => t.labels.some(l => l.toLowerCase().includes(s.toLowerCase()));
 
@@ -702,23 +713,21 @@ function computeMetrics(tickets) {
   const autoQA   = tickets.filter(t => hasLabel(t, 'Automation') || hasLabel(t, 'For Automation')).length;
   const leadQA   = tickets.filter(t => hasLabel(t, 'QA Lead') || hasLabel(t, 'For QA Lead')).length;
   const reviewed = tickets.filter(t =>
-    (t.localStatus || '').toLowerCase().includes('reviewed') ||
-    hasLabel(t, 'Reviewed Test Case')
+    (t.localStatus || '').toLowerCase().includes('reviewed') || hasLabel(t, 'Reviewed Test Case')
   ).length;
-  const changes  = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('changes requested')).length;
-  const onHold   = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('on hold')).length;
+  const changes = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('changes requested')).length;
+  const onHold  = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('on hold')).length;
 
   const getPriority = t => {
     for (const l of t.labels) {
       const lc = l.toLowerCase();
       if (lc.includes('urgent') || lc.includes('urg')) return 'urgent';
-      if (lc.includes('high'))   return 'high';
+      if (lc.includes('high')) return 'high';
       if (lc.includes('medium') || lc.includes('med')) return 'medium';
-      if (lc.includes('low'))    return 'low';
+      if (lc.includes('low')) return 'low';
     }
     return 'none';
   };
-
   const getSeverity = t => {
     for (const l of t.labels) {
       const lc = l.toLowerCase();
@@ -728,7 +737,6 @@ function computeMetrics(tickets) {
     }
     return 'none';
   };
-
   const getType = t => {
     if (t.labels.some(l => l.toLowerCase().includes('test case')))  return 'Test Case';
     if (t.labels.some(l => l.toLowerCase().includes('usability'))) return 'Usability';
@@ -737,11 +745,10 @@ function computeMetrics(tickets) {
   };
 
   // Priority × Severity matrix
-  const PRIO  = ['low','medium','high','urgent'];
-  const SEV   = ['minor','major','critical'];
-  const PL    = { low:'Low', medium:'Med', high:'High', urgent:'Urg' };
-  const SL    = { minor:'Minor', major:'Major', critical:'Critical' };
-
+  const PRIO = ['low','medium','high','urgent'];
+  const SEV  = ['minor','major','critical'];
+  const PL   = { low:'Low', medium:'Med', high:'High', urgent:'Urg' };
+  const SL   = { minor:'Minor', major:'Major', critical:'Critical' };
   const priorityCounts = [];
   for (const p of PRIO) for (const s of SEV) {
     const bugs      = tickets.filter(t => getPriority(t)===p && getSeverity(t)===s && getType(t)==='Bug').length;
@@ -763,13 +770,11 @@ function computeMetrics(tickets) {
     .sort((a,b) => (b.open+b.closed)-(a.open+a.closed))
     .slice(0, 10);
   const msTotal = milestones.reduce((acc,m) => ({
-    open:    acc.open+m.open,
-    closed:  acc.closed+m.closed,
-    bugs:    acc.bugs+m.bugs,
-    usability: acc.usability+m.usability,
+    open: acc.open+m.open, closed: acc.closed+m.closed,
+    bugs: acc.bugs+m.bugs, usability: acc.usability+m.usability,
   }), {open:0,closed:0,bugs:0,usability:0});
 
-  // Members
+  // Members — store raw data for filtering
   const memberMap = {};
   const bump = (key, field) => {
     if (!key) return;
@@ -777,10 +782,10 @@ function computeMetrics(tickets) {
     memberMap[key][field]++;
   };
   for (const t of tickets) {
-    const a = t.author || 'Unknown';
+    const a    = t.author || 'Unknown';
     const type = getType(t);
     const prio = getPriority(t);
-    if (type==='Bug')       bump(a,'bug');
+    if (type==='Bug')            bump(a,'bug');
     else if (type==='Usability') bump(a,'usability');
     else if (type==='Test Case') bump(a,'testCase');
     if (t.labels.some(l=>l.toLowerCase().includes('bug review'))) bump(a,'bugReview');
@@ -800,15 +805,14 @@ function computeMetrics(tickets) {
     return acc;
   }, {});
 
-  // Distribution donut
-  const bugCount     = tickets.filter(t=>getType(t)==='Bug').length;
-  const usabCount    = tickets.filter(t=>getType(t)==='Usability').length;
-  const tcCount      = tickets.filter(t=>getType(t)==='Test Case').length;
-  const bugRevCount  = tickets.filter(t=>t.labels.some(l=>l.toLowerCase().includes('bug review'))).length;
-  const reopenCount  = tickets.filter(t=>t.reopened.toLowerCase()==='yes').length;
-  const distTotal    = bugCount+usabCount+tcCount+bugRevCount+reopenCount+closed;
+  // Distribution
+  const bugCount    = tickets.filter(t=>getType(t)==='Bug').length;
+  const usabCount   = tickets.filter(t=>getType(t)==='Usability').length;
+  const tcCount     = tickets.filter(t=>getType(t)==='Test Case').length;
+  const bugRevCount = tickets.filter(t=>t.labels.some(l=>l.toLowerCase().includes('bug review'))).length;
+  const reopenCount = tickets.filter(t=>t.reopened.toLowerCase()==='yes').length;
+  const distTotal   = bugCount+usabCount+tcCount+bugRevCount+reopenCount+closed;
   const pct = v => distTotal ? ((v/distTotal)*100).toFixed(1) : 0;
-
   const donut = [
     { label:'Test Case',  value:tcCount,    pct:pct(tcCount),    color:'#5b8fff' },
     { label:'Bug Review', value:bugRevCount,pct:pct(bugRevCount),color:'#00e5a8' },
@@ -818,44 +822,42 @@ function computeMetrics(tickets) {
     { label:'Closed',     value:closed,     pct:pct(closed),     color:'#3a4260' },
   ];
 
-  // Top priority open issues
+  // Urgent issues
   const urgent = tickets
     .filter(t => t.status.toLowerCase()!=='closed' && ['urgent','high'].includes(getPriority(t)))
     .sort((a,b) => (getPriority(a)==='urgent'?0:1)-(getPriority(b)==='urgent'?0:1))
     .slice(0,8)
     .map(t => ({
-      level:  getPriority(t)==='urgent'?'Urgent':'High',
-      color:  getPriority(t)==='urgent'?'#ff5577':'#ffb84d',
-      label:  t.milestone || t.project || '',
-      title:  t.title,
+      level: getPriority(t)==='urgent'?'Urgent':'High',
+      color: getPriority(t)==='urgent'?'#ff5577':'#ffb84d',
+      label: t.milestone || t.project || '',
+      title: t.title,
     }));
 
-  // Sprint date info
+  // Sprint dates
   const dates = tickets.map(t=>t.createdAt).filter(Boolean);
   let sprintStart='', sprintEnd='', remainingDays=0, totalDays=0;
   if (dates.length) {
-    sprintStart = dates[dates.length-1];
-    sprintEnd   = dates[0];
+    sprintStart = dates[dates.length-1]; sprintEnd = dates[0];
     try {
       const parseD = d => { const m=d.match(/(\w+),\s+(\w+)\s+(\d+),\s+(\d+)/); return m?new Date(`${m[2]} ${m[3]}, ${m[4]}`):new Date(d); };
       const s=parseD(sprintStart), e=parseD(sprintEnd), now=new Date();
-      totalDays    = Math.max(1,Math.round((e-s)/86400000));
-      remainingDays= Math.max(0,Math.round((e-now)/86400000));
+      totalDays     = Math.max(1, Math.round((e-s)/86400000));
+      remainingDays = Math.max(0, Math.round((e-now)/86400000));
     } catch(e){}
   }
-
   const sprintName = milestones.length ? milestones[0].name : 'Current Sprint';
 
   const kpis = [
-    { label:'Resolution Rate',       value:resPct,           sub:`${closed} of ${total} closed`,      color:'c-warn'   },
-    { label:'Tickets Created',       value:String(total),    sub:'This sprint',                        color:'c-accent' },
-    { label:'Tickets Closed',        value:String(closed),   sub:`${open} remaining open`,             color:'c-green'  },
-    { label:'For Manual QA Review',  value:String(manualQA), sub:'Pending review',                     color:'c-accent' },
-    { label:'For Automation Review', value:String(autoQA),   sub:'Awaiting automation QA',             color:'c-purple' },
-    { label:'For QA Lead Review',    value:String(leadQA),   sub:'Needs lead sign-off',                color:'c-warn'   },
-    { label:'Reviewed Test Cases',   value:String(reviewed), sub:'Completed reviews',                  color:'c-green'  },
-    { label:'Changes Requested',     value:String(changes),  sub:'Revisions needed',                   color:'c-danger' },
-    { label:'On Hold',               value:String(onHold),   sub:'Suspended tickets',                  color:'c-danger' },
+    { label:'Resolution Rate',       value:resPct,           sub:`${closed} of ${total} closed`,  color:'c-warn'   },
+    { label:'Tickets Created',       value:String(total),    sub:'This sprint',                    color:'c-accent' },
+    { label:'Tickets Closed',        value:String(closed),   sub:`${open} remaining open`,         color:'c-green'  },
+    { label:'For Manual QA Review',  value:String(manualQA), sub:'Pending review',                 color:'c-accent' },
+    { label:'For Automation Review', value:String(autoQA),   sub:'Awaiting automation QA',         color:'c-purple' },
+    { label:'For QA Lead Review',    value:String(leadQA),   sub:'Needs lead sign-off',            color:'c-warn'   },
+    { label:'Reviewed Test Cases',   value:String(reviewed), sub:'Completed reviews',              color:'c-green'  },
+    { label:'Changes Requested',     value:String(changes),  sub:'Revisions needed',               color:'c-danger' },
+    { label:'On Hold',               value:String(onHold),   sub:'Suspended tickets',              color:'c-danger' },
   ];
 
   return {
@@ -864,8 +866,7 @@ function computeMetrics(tickets) {
     members, memberTotals,
     reporters: members.slice(0,6),
     donut, urgent,
-    sprintName, sprintStart, sprintEnd,
-    totalDays, remainingDays,
+    sprintName, sprintStart, sprintEnd, totalDays, remainingDays,
   };
 }
 
@@ -877,31 +878,341 @@ function avatarColor(name) {
   for (const c of name) h = (h*31 + c.charCodeAt(0)) % AVATAR_COLORS.length;
   return AVATAR_COLORS[Math.abs(h)];
 }
-function initials(name) {
-  return (name||'').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
-}
-function n(v) {
-  return (v===0||v==='0') ? `<span class="zero">—</span>` : v;
-}
+function initials(name) { return (name||'').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase(); }
+function n(v) { return (v===0||v==='0') ? `<span class="zero">—</span>` : v; }
 function priClass(label) {
-  if (label.startsWith('Urg')) return 'p-urg';
+  if (label.startsWith('Urg'))  return 'p-urg';
   if (label.startsWith('High')) return 'p-high';
-  if (label.startsWith('Med')) return 'p-med';
+  if (label.startsWith('Med'))  return 'p-med';
   return 'p-low';
 }
 
 /* ══════════════════════════════════════════════════
-   RENDER
+   MEMBERS SECTION — INTERACTIVE LOGIC
+══════════════════════════════════════════════════ */
+let _allMembers    = [];
+let _memberTotals  = {};
+let _activeFilters = {
+  types:      [],   // 'bug','usability','testCase','bugReview','reopen','closed'
+  priorities: [],   // 'low','med','high','urg'
+};
+let _filterOpen    = false;
+let _searchQuery   = '';
+const PAGE_SIZE    = 10;
+
+function initMembersSection(members, memberTotals) {
+  _allMembers   = members;
+  _memberTotals = memberTotals;
+  _activeFilters = { types: [], priorities: [] };
+  _searchQuery  = '';
+  renderMembersSection();
+}
+
+function getFilteredMembers() {
+  let list = _allMembers;
+
+  // Search
+  if (_searchQuery.trim()) {
+    const q = _searchQuery.toLowerCase().trim();
+    list = list.filter(m => m.name.toLowerCase().includes(q));
+  }
+
+  // Type filters — show members who have at least 1 in the selected type columns
+  if (_activeFilters.types.length > 0) {
+    list = list.filter(m => _activeFilters.types.some(t => (m[t] || 0) > 0));
+  }
+
+  // Priority filters
+  if (_activeFilters.priorities.length > 0) {
+    list = list.filter(m => _activeFilters.priorities.some(p => (m[p] || 0) > 0));
+  }
+
+  return list;
+}
+
+function hasActiveFilters() {
+  return _activeFilters.types.length > 0 || _activeFilters.priorities.length > 0;
+}
+
+function memberRowHTML(m) {
+  const av = avatarColor(m.name);
+  return `<tr>
+    <td><div class="member-cell">
+      <div class="avatar" style="background:${av}22;color:${av}">${initials(m.name)}</div>
+      <span style="font-size:12px">${m.name}</span>
+    </div></td>
+    <td>${n(m.bug)}</td>
+    <td>${n(m.usability)}</td>
+    <td>${n(m.bugReview)}</td>
+    <td>${n(m.reopen)}</td>
+    <td>${n(m.testCase)}</td>
+    <td>${n(m.closed)}</td>
+    <td style="color:var(--low)">${n(m.low)}</td>
+    <td style="color:var(--med)">${n(m.med)}</td>
+    <td style="color:var(--high)">${n(m.high)}</td>
+    <td style="color:var(--urg)">${n(m.urg)}</td>
+    <td style="font-weight:500;color:var(--text)">${m.total}</td>
+  </tr>`;
+}
+
+function filterOptionHTML(value, label, color, field, count) {
+  const isActive = _activeFilters[field] && _activeFilters[field].includes(value);
+  return `
+  <div class="filter-option${isActive?' checked':''}" onclick="toggleFilter('${field}','${value}',this)">
+    <input type="checkbox"${isActive?' checked':''}>
+    <div class="filter-checkbox"></div>
+    ${color ? `<div class="filter-dot" style="background:${color}"></div>` : ''}
+    <div class="filter-option-label">${label}</div>
+    <div class="filter-option-count">${count}</div>
+  </div>`;
+}
+
+function renderMembersSection() {
+  const filtered = getFilteredMembers();
+  const shown    = filtered.slice(0, PAGE_SIZE);
+  const total    = _allMembers.length;
+  const active   = hasActiveFilters();
+  const t        = _memberTotals;
+
+  // Build totals for filter option counts
+  const typeCounts = {
+    bug:       _allMembers.reduce((s,m)=>s+(m.bug||0),0),
+    usability: _allMembers.reduce((s,m)=>s+(m.usability||0),0),
+    testCase:  _allMembers.reduce((s,m)=>s+(m.testCase||0),0),
+    bugReview: _allMembers.reduce((s,m)=>s+(m.bugReview||0),0),
+    reopen:    _allMembers.reduce((s,m)=>s+(m.reopen||0),0),
+    closed:    _allMembers.reduce((s,m)=>s+(m.closed||0),0),
+  };
+  const prioCounts = {
+    low:  _allMembers.reduce((s,m)=>s+(m.low||0),0),
+    med:  _allMembers.reduce((s,m)=>s+(m.med||0),0),
+    high: _allMembers.reduce((s,m)=>s+(m.high||0),0),
+    urg:  _allMembers.reduce((s,m)=>s+(m.urg||0),0),
+  };
+
+  // Table body
+  let bodyHTML = '';
+  if (shown.length === 0) {
+    bodyHTML = `<tr><td colspan="12"><div class="no-results">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" display="block" margin="0 auto 10px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <div>No members match your search or filters.</div>
+    </div></td></tr>`;
+  } else {
+    bodyHTML = shown.map(memberRowHTML).join('');
+  }
+
+  // Computed totals for filtered set
+  const fTot = filtered.reduce((acc,m) => {
+    for (const k of ['bug','usability','bugReview','reopen','testCase','closed','low','med','high','urg','total'])
+      acc[k] = (acc[k]||0) + (m[k]||0);
+    return acc;
+  }, {});
+
+  const html = `
+<div class="members-card fade-in" id="membersCard">
+  <div class="members-header">
+    <div class="members-header-left">
+      Output Summary — Members
+      <span class="members-count-badge" id="membersCountBadge">${total}</span>
+    </div>
+    <div class="members-controls">
+      <!-- Search -->
+      <div class="members-search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          class="members-search"
+          id="membersSearch"
+          type="text"
+          placeholder="Search member…"
+          value="${_searchQuery.replace(/"/g,'&quot;')}"
+          oninput="onMembersSearch(this.value)"
+          autocomplete="off"
+        >
+      </div>
+      <!-- Filter -->
+      <div style="position:relative" id="filterWrap">
+        <button class="filter-btn${active?' active':''}" id="filterBtn" onclick="toggleFilterDropdown()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+          Filter
+          ${active ? `<span style="font-family:var(--mono);font-size:10px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:3px;margin-left:2px">${_activeFilters.types.length+_activeFilters.priorities.length}</span>` : ''}
+          <div class="filter-active-dot${active?' show':''}"></div>
+        </button>
+        <!-- Dropdown -->
+        <div class="filter-dropdown${_filterOpen?' open':''}" id="filterDropdown">
+          <div class="filter-dropdown-header">
+            Filter by
+            <button class="filter-clear-btn" onclick="clearAllFilters()">Clear all</button>
+          </div>
+
+          <div class="filter-group-label">Ticket Type</div>
+          ${filterOptionHTML('bug',       'Bug',             '#ffb84d', 'types', typeCounts.bug)}
+          ${filterOptionHTML('usability', 'Usability',       '#b07fff', 'types', typeCounts.usability)}
+          ${filterOptionHTML('testCase',  'Test Case',       '#5b8fff', 'types', typeCounts.testCase)}
+          ${filterOptionHTML('bugReview', 'Bug Review',      '#00e5a8', 'types', typeCounts.bugReview)}
+          ${filterOptionHTML('reopen',    'Reopened',        '#ff5577', 'types', typeCounts.reopen)}
+          ${filterOptionHTML('closed',    'Closed',          '#3a4260', 'types', typeCounts.closed)}
+
+          <div class="filter-divider"></div>
+          <div class="filter-group-label">Priority</div>
+          ${filterOptionHTML('low',  'Low Priority',    '#5b8fff', 'priorities', prioCounts.low)}
+          ${filterOptionHTML('med',  'Medium Priority', '#b07fff', 'priorities', prioCounts.med)}
+          ${filterOptionHTML('high', 'High Priority',   '#ffb84d', 'priorities', prioCounts.high)}
+          ${filterOptionHTML('urg',  'Urgent',          '#ff5577', 'priorities', prioCounts.urg)}
+
+          <div class="filter-dropdown-footer">
+            <button class="filter-apply-btn" onclick="applyFilters()">Apply Filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="members-table-container">
+    <div class="members-table-scroll" id="membersTableScroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">Member</th>
+            <th>Bug</th><th>Usab.</th><th>Bug Rev.</th><th>Reopen</th>
+            <th>Test Case</th><th>Closed</th>
+            <th style="color:var(--low)">Low</th>
+            <th style="color:var(--med)">Med</th>
+            <th style="color:var(--high)">High</th>
+            <th style="color:var(--urg)">Urg</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="membersTableBody">
+          ${bodyHTML}
+        </tbody>
+      </table>
+    </div>
+    <!-- Sticky footer totals -->
+    <div class="members-tfoot-wrap">
+      <table style="width:100%;border-collapse:collapse">
+        <tfoot>
+          <tr>
+            <td style="text-align:left;padding:10px;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;font-family:var(--font);color:var(--text);font-weight:500;min-width:170px">
+              ${filtered.length < total ? `Filtered (${filtered.length})` : 'Total'}
+            </td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.bug||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.usability||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.bugReview||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.reopen||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.testCase||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.closed||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.low||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.med||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.high||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.urg||0}</td>
+            <td style="padding:10px;text-align:right;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text)">${fTot.total||0}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="members-footer-meta">
+    <span class="members-showing" id="membersShowing">
+      Showing ${shown.length} of ${filtered.length}${filtered.length < total ? ` filtered` : ''} member${filtered.length===1?'':'s'}${filtered.length < total ? ` (${total} total)` : ''}
+      ${shown.length < filtered.length ? ` · <span style="color:var(--accent)">scroll to see all</span>` : ''}
+    </span>
+    ${active || _searchQuery ? `<span style="font-size:11px;color:var(--accent);cursor:pointer" onclick="clearAllFilters();onMembersSearch('')">✕ Clear filters</span>` : ''}
+  </div>
+</div>`;
+
+  const container = document.getElementById('membersCardContainer');
+  if (container) {
+    container.innerHTML = html;
+    setupFilterDropdownClose();
+    // Restore scroll position if needed
+    const scrollEl = document.getElementById('membersTableScroll');
+    if (scrollEl) {
+      // Sync footer scroll with body scroll
+      scrollEl.addEventListener('scroll', () => {
+        const footer = scrollEl.closest('.members-table-container').querySelector('.members-tfoot-wrap');
+        if (footer) footer.scrollLeft = scrollEl.scrollLeft;
+      });
+    }
+  }
+}
+
+function setupFilterDropdownClose() {
+  // Close on outside click
+  setTimeout(() => {
+    const handler = (e) => {
+      const wrap = document.getElementById('filterWrap');
+      if (wrap && !wrap.contains(e.target)) {
+        _filterOpen = false;
+        const dd = document.getElementById('filterDropdown');
+        if (dd) dd.classList.remove('open');
+        document.removeEventListener('click', handler);
+      }
+    };
+    document.addEventListener('click', handler);
+  }, 10);
+}
+
+function toggleFilterDropdown() {
+  _filterOpen = !_filterOpen;
+  const dd = document.getElementById('filterDropdown');
+  const btn = document.getElementById('filterBtn');
+  if (dd) dd.classList.toggle('open', _filterOpen);
+  if (btn) btn.classList.toggle('active', _filterOpen || hasActiveFilters());
+}
+
+function toggleFilter(field, value, el) {
+  const arr = _activeFilters[field];
+  const idx = arr.indexOf(value);
+  if (idx === -1) arr.push(value);
+  else arr.splice(idx, 1);
+  el.classList.toggle('checked', idx === -1);
+  // Update badge immediately
+  const btn = document.getElementById('filterBtn');
+  const total = _activeFilters.types.length + _activeFilters.priorities.length;
+  if (btn) {
+    btn.classList.toggle('active', total > 0 || _filterOpen);
+    const dot = btn.querySelector('.filter-active-dot');
+    if (dot) dot.classList.toggle('show', total > 0);
+  }
+}
+
+function applyFilters() {
+  _filterOpen = false;
+  renderMembersSection();
+}
+
+function clearAllFilters() {
+  _activeFilters = { types: [], priorities: [] };
+  _searchQuery   = '';
+  _filterOpen    = false;
+  renderMembersSection();
+}
+
+function onMembersSearch(val) {
+  _searchQuery = val;
+  renderMembersSection();
+  // Re-focus search
+  const el = document.getElementById('membersSearch');
+  if (el) { el.focus(); el.setSelectionRange(val.length, val.length); }
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER DASHBOARD
 ══════════════════════════════════════════════════ */
 function renderDashboard(metrics) {
   const { total, closed, kpis, priorityCounts, milestones, msTotal,
           members, memberTotals, reporters, donut, urgent,
           sprintName, sprintStart, sprintEnd, totalDays, remainingDays } = metrics;
 
-  const elapsed = totalDays - remainingDays;
+  const elapsed    = totalDays - remainingDays;
   const pctElapsed = totalDays ? Math.min(100, Math.round((elapsed/totalDays)*100)) : 0;
 
-  /* ── Top bar ── */
+  /* Topbar */
   const topbar = `
 <div class="topbar slide-up">
   <div class="brand">
@@ -934,14 +1245,14 @@ function renderDashboard(metrics) {
   </div>
 </div>`;
 
-  /* ── Announce ── */
+  /* Announce */
   const announce = `
 <div class="announce fade-in">
   <div class="announce-dot"></div>
   <span>Live data · ${total} tickets loaded · Last refreshed ${new Date().toLocaleTimeString()}</span>
 </div>`;
 
-  /* ── KPIs ── */
+  /* KPIs */
   const kpiHtml = kpis.map((k,i) => `
 <div class="kpi ${k.color} slide-up" style="animation-delay:${i*0.04}s">
   <div class="kpi-label">${k.label}</div>
@@ -955,7 +1266,7 @@ function renderDashboard(metrics) {
   <div class="grid-auto">${kpiHtml}</div>
 </div>`;
 
-  /* ── Priority matrix ── */
+  /* Priority matrix */
   const maxBug = Math.max(...priorityCounts.map(r=>r.bugs), 1);
   const matrixRows = priorityCounts.map(r => {
     const bw = Math.round((r.bugs/maxBug)*100);
@@ -969,11 +1280,10 @@ function renderDashboard(metrics) {
   <div style="text-align:right;font-family:var(--mono);font-size:11px;color:var(--accent)">${n(r.usability)}</div>
 </div>`;
   }).join('');
-
   const totalBugs = priorityCounts.reduce((s,r)=>s+r.bugs,0);
   const totalUsab = priorityCounts.reduce((s,r)=>s+r.usability,0);
 
-  /* ── Milestones ── */
+  /* Milestones */
   const msRows = milestones.map(m => `
 <tr>
   <td>${m.name}</td>
@@ -1022,59 +1332,13 @@ function renderDashboard(metrics) {
   </div>
 </div>`;
 
-  /* ── Members table ── */
-  const memberRows = members.map(m => {
-    const av = avatarColor(m.name);
-    return `<tr>
-      <td><div class="member-cell">
-        <div class="avatar" style="background:${av}22;color:${av}">${initials(m.name)}</div>
-        <span style="font-size:12px">${m.name}</span>
-      </div></td>
-      <td>${n(m.bug)}</td><td>${n(m.usability)}</td>
-      <td>${n(m.bugReview)}</td><td>${n(m.reopen)}</td>
-      <td>${n(m.testCase)}</td><td>${n(m.closed)}</td>
-      <td style="color:var(--low)">${n(m.low)}</td>
-      <td style="color:var(--med)">${n(m.med)}</td>
-      <td style="color:var(--high)">${n(m.high)}</td>
-      <td style="color:var(--urg)">${n(m.urg)}</td>
-      <td style="font-weight:500;color:var(--text)">${m.total}</td>
-    </tr>`;
-  }).join('');
+  /* Members section — placeholder div, populated by JS */
+  const membersSection = `<div id="membersCardContainer"></div>`;
 
-  const t = memberTotals;
-  const membersSection = `
-<div class="card">
-  <div class="card-title">Output Summary — Members</div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th style="text-align:left">Member</th>
-        <th>Bug</th><th>Usab.</th><th>Bug Rev.</th><th>Reopen</th>
-        <th>Test Case</th><th>Closed</th>
-        <th style="color:var(--low)">Low</th>
-        <th style="color:var(--med)">Med</th>
-        <th style="color:var(--high)">High</th>
-        <th style="color:var(--urg)">Urg</th>
-        <th>Total</th>
-      </tr></thead>
-      <tbody>${memberRows}</tbody>
-      <tfoot><tr>
-        <td>Total</td>
-        <td>${t.bug||0}</td><td>${t.usability||0}</td>
-        <td>${t.bugReview||0}</td><td>${t.reopen||0}</td>
-        <td>${t.testCase||0}</td><td>${t.closed||0}</td>
-        <td>${t.low||0}</td><td>${t.med||0}</td>
-        <td>${t.high||0}</td><td>${t.urg||0}</td>
-        <td>${t.total||0}</td>
-      </tr></tfoot>
-    </table>
-  </div>
-</div>`;
-
-  /* ── Charts row ── */
+  /* Charts */
   const maxR = Math.max(...reporters.map(r=>r.total), 1);
   const repBars = reporters.map((r,i) => {
-    const w = Math.round((r.total/maxR)*100);
+    const w   = Math.round((r.total/maxR)*100);
     const col = AVATAR_COLORS[i % AVATAR_COLORS.length];
     return `<div class="rep-row">
       <div class="rep-name">${r.name}</div>
@@ -1137,46 +1401,35 @@ function renderDashboard(metrics) {
   ${chartsSection}
   ${footer}
 </div>`;
+
+  // Initialize interactive members section
+  initMembersSection(members, memberTotals);
 }
 
 /* ══════════════════════════════════════════════════
    ORCHESTRATOR
 ══════════════════════════════════════════════════ */
-function setStatus(msg) {
-  document.getElementById('loadStatus').textContent = msg;
-}
+function setStatus(msg) { document.getElementById('loadStatus').textContent = msg; }
 
 async function loadDashboard() {
   document.getElementById('loginScreen').style.display   = 'none';
   document.getElementById('loadingScreen').style.display = 'flex';
   document.getElementById('dashboardRoot').style.display = 'none';
-
   try {
     setStatus('Fetching ticket data from Google Sheets…');
     const rows = await fetchSheetData();
-
-    if (!rows || rows.length < 2) {
-      throw new Error('No data found in ALL TICKETS tab.');
-    }
-
+    if (!rows || rows.length < 2) throw new Error('No data found in ALL TICKETS tab.');
     setStatus(`Parsing ${rows.length - 1} ticket(s)…`);
     const tickets = parseTickets(rows);
-
-    if (!tickets.length) {
-      throw new Error('Could not parse any tickets. Check that row 3 has the correct headers.');
-    }
-
+    if (!tickets.length) throw new Error('Could not parse any tickets. Check that row 3 has the correct headers.');
     setStatus('Computing metrics…');
     const metrics = computeMetrics(tickets);
-
     setStatus('Rendering dashboard…');
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('dashboardRoot').style.display = 'block';
     renderDashboard(metrics);
-
   } catch (err) {
     document.getElementById('loadingScreen').style.display = 'none';
-    // If session expired, signOut() already redirected to login
     if (accessToken) {
       document.getElementById('dashboardRoot').innerHTML = `
 <div class="dash">
