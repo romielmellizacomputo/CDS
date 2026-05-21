@@ -212,7 +212,7 @@ body::after {
 }
 .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; font-family: var(--font-display); }
 .brand-sub  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.sprint-meta { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.sprint-meta { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .meta-block .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font); }
 .meta-block .val   { font-size: 13px; font-weight: 500; margin-top: 2px; font-family: var(--font); }
 .progress-track { height: 5px; background: var(--surface2); border-radius: 3px; margin-top: 6px; width: 120px; overflow: hidden; }
@@ -572,7 +572,9 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
 }
 .members-showing { font-family: var(--mono); }
 
-/* ── Sprint Dropdown ── */
+/* ══════════════════════════════════
+   SPRINT DROPDOWN — NEW STYLES
+══════════════════════════════════ */
 .sprint-dropdown-wrap {
   position: relative;
 }
@@ -582,13 +584,14 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
   background: var(--surface2); border: 1px solid var(--border-bright);
   border-radius: var(--r); color: var(--text);
   font-family: var(--font); font-size: 13px; font-weight: 500;
-  cursor: pointer; transition: all 0.2s; min-width: 200px;
+  cursor: pointer; transition: all 0.2s; min-width: 190px;
   white-space: nowrap;
 }
 .sprint-select-btn:hover { border-color: var(--accent); box-shadow: 0 0 12px rgba(91,143,255,0.1); }
+.sprint-select-btn.open { border-color: var(--accent); background: rgba(91,143,255,0.06); }
 .sprint-select-btn .sprint-btn-label { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; }
-.sprint-select-btn svg { flex-shrink: 0; color: var(--text-muted); transition: transform 0.2s; }
-.sprint-select-btn.open svg { transform: rotate(180deg); }
+.sprint-select-btn .chevron { flex-shrink: 0; color: var(--text-muted); transition: transform 0.2s; }
+.sprint-select-btn.open .chevron { transform: rotate(180deg); }
 .sprint-select-btn .sprint-dot {
   width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
   background: var(--accent2); box-shadow: 0 0 5px var(--accent2);
@@ -597,10 +600,10 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
 .sprint-dropdown-menu {
   display: none; position: absolute;
   top: calc(100% + 6px); left: 0;
-  min-width: 260px; max-height: 320px; overflow-y: auto;
+  min-width: 280px; max-height: 340px; overflow-y: auto;
   background: var(--surface2); border: 1px solid var(--border-bright);
   border-radius: var(--r-lg);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(91,143,255,0.06);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(91,143,255,0.06);
   z-index: 200; animation: dropIn 0.18s ease both;
   scrollbar-width: thin; scrollbar-color: var(--border-bright) transparent;
 }
@@ -616,6 +619,7 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
   font-family: var(--font);
 }
 .sprint-menu-item {
+  display: flex; align-items: center; gap: 10px;
   padding: 10px 14px; cursor: pointer;
   transition: background 0.1s;
   border-bottom: 1px solid rgba(37,43,66,0.4);
@@ -624,8 +628,19 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
 .sprint-menu-item:hover { background: rgba(91,143,255,0.06); }
 .sprint-menu-item.active { background: rgba(91,143,255,0.1); }
 .sprint-menu-item.active .smi-name { color: var(--accent); }
+.smi-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+  background: var(--border-bright);
+}
+.sprint-menu-item.active .smi-dot { background: var(--accent2); box-shadow: 0 0 4px var(--accent2); }
+.smi-text { flex: 1; min-width: 0; }
 .smi-name { font-size: 13px; font-weight: 500; color: var(--text); font-family: var(--font); margin-bottom: 2px; }
 .smi-dates { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
+.smi-check {
+  flex-shrink: 0; color: var(--accent2);
+  opacity: 0; transition: opacity 0.15s;
+}
+.sprint-menu-item.active .smi-check { opacity: 1; }
 
 @media (max-width: 1100px) {
   .analytics-grid { grid-template-columns: 1fr 1fr; }
@@ -698,6 +713,8 @@ const STORAGE_KEY = 'qa_dash_session';
 /* ── Sprint state ── */
 let _sprints        = [];   // [{ name, start, end, startDate, endDate }]
 let _selectedSprint = null; // current sprint object
+let _allTickets     = [];   // raw parsed tickets (unfiltered)
+let _sprintMenuOpen = false;
 
 /* ── Session helpers ── */
 function saveSession() {
@@ -773,6 +790,7 @@ async function sheetFetch(rangeStr) {
 
 /* Fetch + parse Timelines sheet — returns array of sprint objects */
 async function fetchTimelines() {
+  // A2:C — column A = sprint name, B = start date, C = end date
   const rows = await sheetFetch(`'${TIMELINE_TAB}'!A2:C`);
   return rows
     .filter(r => r[0] && r[0].trim())
@@ -782,7 +800,7 @@ async function fetchTimelines() {
       const end   = (r[2] || '').trim();
       return {
         name,
-        start,  // raw string for display
+        start,
         end,
         startDate: parseAnyDate(start),
         endDate:   parseAnyDate(end),
@@ -796,36 +814,28 @@ async function fetchSheetData() {
 }
 
 /* ── Date parsing ─────────────────────────────── */
-// Handles: "January 15, 2025", "Jan 15, 2025", "Monday, January 15, 2025",
-//          "2025-01-15", "01/15/2025", "15/01/2025", serial numbers
 function parseAnyDate(str) {
   if (!str) return null;
   str = str.trim();
-  // Google Sheets serial number (e.g. 45672)
   if (/^\d{4,6}$/.test(str)) {
     const serial = parseInt(str, 10);
-    // Google epoch: Dec 30 1899
     return new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
   }
-  // Remove weekday prefix "Monday, " or "Mon, "
   const noDay = str.replace(/^\w+,\s*/, '');
   const d = new Date(noDay);
   if (!isNaN(d)) return d;
-  // Try original
   const d2 = new Date(str);
   if (!isNaN(d2)) return d2;
   return null;
 }
 
-/* Normalise a date to midnight UTC for clean range comparisons */
 function toMidnightUTC(d) {
   if (!d) return null;
   return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
 }
 
-/* Return true if ticketDateStr falls within [startDate, endDate] inclusive */
 function inSprintRange(ticketDateStr, startDate, endDate) {
-  if (!startDate && !endDate) return true; // no filter
+  if (!startDate && !endDate) return true;
   const td = toMidnightUTC(parseAnyDate(ticketDateStr));
   if (!td) return false;
   const s = startDate ? toMidnightUTC(startDate) : null;
@@ -833,6 +843,14 @@ function inSprintRange(ticketDateStr, startDate, endDate) {
   if (s && td < s) return false;
   if (e && td > e) return false;
   return true;
+}
+
+/* ── Filter tickets by selected sprint ─────── */
+function filterTicketsBySprint(tickets) {
+  if (!_selectedSprint) return tickets;
+  const { startDate, endDate } = _selectedSprint;
+  if (!startDate && !endDate) return tickets;
+  return tickets.filter(t => inSprintRange(t.createdAt, startDate, endDate));
 }
 
 /* ══════════════════════════════════════════════════
@@ -870,37 +888,18 @@ function computeMetrics(tickets) {
   const closed = tickets.filter(t => t.status.toLowerCase() === 'closed').length;
   const open   = total - closed;
 
-  // ── Exact-match label helpers ──────────────────
-  // Labels are comma-separated; each label is already trimmed in parseTickets.
-  // Use exact case-insensitive match against the full label string.
   const hasExactLabel = (t, name) =>
     t.labels.some(l => l.toLowerCase() === name.toLowerCase());
 
-  // isBug: has "Bug-Issue" AND does NOT have "Not a Bug"
-  const isBug = t =>
-    hasExactLabel(t, 'Bug-Issue') && !hasExactLabel(t, 'Not a Bug');
-
-  // isUsability: has "Usability Suggestions"
+  const isBug      = t => hasExactLabel(t, 'Bug-Issue') && !hasExactLabel(t, 'Not a Bug');
   const isUsability = t => hasExactLabel(t, 'Usability Suggestions');
+  const isTestCase  = t => hasExactLabel(t, 'Test Case');
 
-  // isTestCase: has "Test Case"
-  const isTestCase = t => hasExactLabel(t, 'Test Case');
-
-  // getType now uses exact matching
-  const getType = t => {
-    if (isBug(t))        return 'Bug';
-    if (isUsability(t))  return 'Usability';
-    if (isTestCase(t))   return 'Test Case';
-    return 'Other';
-  };
-
-  // Resolution rate: only Bug-Issue + Usability Suggestions tickets
   const bugAndUsabTickets = tickets.filter(t => isBug(t) || isUsability(t));
   const buClosed = bugAndUsabTickets.filter(t => t.status.toLowerCase() === 'closed').length;
   const buTotal  = bugAndUsabTickets.length;
   const resPct   = buTotal ? ((buClosed / buTotal) * 100).toFixed(1) + '%' : '0%';
 
-  // ── Partial label helpers for other KPIs ──────
   const hasLabel = (t, s) => t.labels.some(l => l.toLowerCase().includes(s.toLowerCase()));
 
   const manualQA = tickets.filter(t => hasLabel(t, 'Manual QA For Review')).length;
@@ -920,7 +919,6 @@ function computeMetrics(tickets) {
       if (lc.includes('medium-priority') || lc.includes('med-priority')) return 'medium';
       if (lc.includes('low-priority') || lc === 'low') return 'low';
     }
-    // fallback: looser match
     for (const l of t.labels) {
       const lc = l.toLowerCase();
       if (lc.includes('urgent')) return 'urgent';
@@ -940,7 +938,6 @@ function computeMetrics(tickets) {
     return 'none';
   };
 
-  // Priority × Severity matrix
   const PRIO = ['low','medium','high','urgent'];
   const SEV  = ['minor','major','critical'];
   const PL   = { low:'Low', medium:'Med', high:'High', urgent:'Urg' };
@@ -952,11 +949,10 @@ function computeMetrics(tickets) {
     priorityCounts.push({ label:`${PL[p]}-${SL[s]}`, prio:p, bugs, usability });
   }
 
-  // Milestones — exclude "QA Team"
   const msMap = {};
   for (const t of tickets) {
     const m = t.milestone || '(No Milestone)';
-    if (m.trim().toLowerCase() === 'qa team') continue; // skip QA Team milestone
+    if (m.trim().toLowerCase() === 'qa team') continue;
     if (!msMap[m]) msMap[m] = { open:0, closed:0, bugs:0, usability:0 };
     t.status.toLowerCase()==='closed' ? msMap[m].closed++ : msMap[m].open++;
     if (isBug(t))       msMap[m].bugs++;
@@ -971,7 +967,6 @@ function computeMetrics(tickets) {
     bugs: acc.bugs+m.bugs, usability: acc.usability+m.usability,
   }), {open:0,closed:0,bugs:0,usability:0});
 
-  // Members — total = bug + usability only (Top Reporters counts)
   const memberMap = {};
   const bump = (key, field) => {
     if (!key) return;
@@ -994,7 +989,6 @@ function computeMetrics(tickets) {
     if (prio==='medium') bump(a,'med');
     if (prio==='high')   bump(a,'high');
     if (prio==='urgent') bump(a,'urg');
-    // total = Bug-Issue + Usability Suggestions only (for Top Reporters)
     if (bug || usab) bump(a,'total');
   }
   const members = Object.entries(memberMap)
@@ -1005,7 +999,6 @@ function computeMetrics(tickets) {
     return acc;
   }, {});
 
-  // Distribution — based on exact types
   const bugCount    = tickets.filter(t=>isBug(t)).length;
   const usabCount   = tickets.filter(t=>isUsability(t)).length;
   const tcCount     = tickets.filter(t=>isTestCase(t)).length;
@@ -1022,10 +1015,10 @@ function computeMetrics(tickets) {
     { label:'Closed',            value:closed,     pct:pct(closed),     color:'#3a4260' },
   ];
 
-  // Sprint dates — come from the selected sprint dropdown
-  const sprintName  = _selectedSprint ? _selectedSprint.name  : (milestones.length ? milestones[0].name : 'Current Sprint');
-  const sprintStart = _selectedSprint ? _selectedSprint.start : '';
-  const sprintEnd   = _selectedSprint ? _selectedSprint.end   : '';
+  /* Sprint timing from _selectedSprint */
+  const sprintName  = _selectedSprint ? _selectedSprint.name  : '—';
+  const sprintStart = _selectedSprint ? _selectedSprint.start : '—';
+  const sprintEnd   = _selectedSprint ? _selectedSprint.end   : '—';
   let totalDays = 0, remainingDays = 0;
   if (_selectedSprint && _selectedSprint.startDate && _selectedSprint.endDate) {
     const now = new Date();
@@ -1073,6 +1066,81 @@ function priClass(label) {
 }
 
 /* ══════════════════════════════════════════════════
+   SPRINT DROPDOWN
+══════════════════════════════════════════════════ */
+function toggleSprintMenu() {
+  _sprintMenuOpen = !_sprintMenuOpen;
+  const btn  = document.getElementById('sprintSelectBtn');
+  const menu = document.getElementById('sprintDropdownMenu');
+  if (btn)  btn.classList.toggle('open', _sprintMenuOpen);
+  if (menu) menu.classList.toggle('open', _sprintMenuOpen);
+  if (_sprintMenuOpen) {
+    setTimeout(() => {
+      const handler = (e) => {
+        const wrap = document.getElementById('sprintDropdownWrap');
+        if (wrap && !wrap.contains(e.target)) {
+          _sprintMenuOpen = false;
+          if (btn)  btn.classList.remove('open');
+          if (menu) menu.classList.remove('open');
+          document.removeEventListener('click', handler);
+        }
+      };
+      document.addEventListener('click', handler);
+    }, 10);
+  }
+}
+
+function selectSprint(idx) {
+  _selectedSprint = _sprints[idx];
+  _sprintMenuOpen = false;
+
+  // Close the dropdown
+  const btn  = document.getElementById('sprintSelectBtn');
+  const menu = document.getElementById('sprintDropdownMenu');
+  if (btn)  btn.classList.remove('open');
+  if (menu) menu.classList.remove('open');
+
+  // Re-compute metrics with the new sprint filter and re-render dashboard
+  const filtered = filterTicketsBySprint(_allTickets);
+  const metrics  = computeMetrics(filtered);
+  renderDashboard(metrics);
+}
+
+function buildSprintDropdownHTML() {
+  if (!_sprints.length) return '';
+  const items = _sprints.map((s, i) => {
+    const isActive = _selectedSprint && _selectedSprint.name === s.name;
+    const dateStr  = (s.start && s.end) ? `${s.start} → ${s.end}` : (s.start || s.end || 'No dates');
+    return `
+<div class="sprint-menu-item${isActive ? ' active' : ''}" onclick="selectSprint(${i})">
+  <div class="smi-dot"></div>
+  <div class="smi-text">
+    <div class="smi-name">${s.name}</div>
+    <div class="smi-dates">${dateStr}</div>
+  </div>
+  <svg class="smi-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+</div>`;
+  }).join('');
+
+  return `
+<div class="sprint-dropdown-wrap" id="sprintDropdownWrap">
+  <button class="sprint-select-btn" id="sprintSelectBtn" onclick="toggleSprintMenu()">
+    <div class="sprint-dot"></div>
+    <span class="sprint-btn-label">${_selectedSprint ? _selectedSprint.name : 'Select Sprint'}</span>
+    <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  </button>
+  <div class="sprint-dropdown-menu" id="sprintDropdownMenu">
+    <div class="sprint-menu-header">Select Sprint</div>
+    ${items}
+  </div>
+</div>`;
+}
+
+/* ══════════════════════════════════════════════════
    MEMBERS SECTION — INTERACTIVE LOGIC
 ══════════════════════════════════════════════════ */
 let _allMembers   = [];
@@ -1102,9 +1170,7 @@ function getSortedFilteredMembers() {
   return list;
 }
 
-function hasActiveSort() {
-  return _sortField !== null;
-}
+function hasActiveSort() { return _sortField !== null; }
 
 function memberRowHTML(m) {
   const av = avatarColor(m.name);
@@ -1142,11 +1208,6 @@ function sortOptionHTML(value, label, color) {
 
 function selectSort(field) {
   _sortField = (_sortField === field) ? null : field;
-  renderMembersSection();
-}
-
-function applyFilters() {
-  _sortOpen = false;
   renderMembersSection();
 }
 
@@ -1343,7 +1404,9 @@ function renderMembersSection() {
   }
 }
 
-
+/* ══════════════════════════════════════════════════
+   RENDER DASHBOARD
+══════════════════════════════════════════════════ */
 function renderDashboard(metrics) {
   const { total, closed, kpis, priorityCounts, milestones, msTotal,
           members, memberTotals, reporters, donut,
@@ -1351,6 +1414,9 @@ function renderDashboard(metrics) {
 
   const elapsed    = totalDays - remainingDays;
   const pctElapsed = totalDays ? Math.min(100, Math.round((elapsed/totalDays)*100)) : 0;
+
+  /* ── Sprint dropdown HTML ── */
+  const sprintDropdownHTML = buildSprintDropdownHTML();
 
   /* ── Topbar ── */
   const topbar = `
@@ -1363,9 +1429,12 @@ function renderDashboard(metrics) {
     </div>
   </div>
   <div class="sprint-meta">
-    <div class="meta-block"><div class="label">Sprint</div><div class="val">${sprintName}</div></div>
-    <div class="meta-block"><div class="label">Start</div><div class="val">${sprintStart||'—'}</div></div>
-    <div class="meta-block"><div class="label">End</div><div class="val">${sprintEnd||'—'}</div></div>
+    <div class="meta-block">
+      <div class="label">Sprint</div>
+      <div style="margin-top:4px">${sprintDropdownHTML}</div>
+    </div>
+    <div class="meta-block"><div class="label">Start</div><div class="val">${sprintStart || '—'}</div></div>
+    <div class="meta-block"><div class="label">End</div><div class="val">${sprintEnd || '—'}</div></div>
     <div class="meta-block">
       <div class="label" style="display:flex;justify-content:space-between;width:130px">
         <span>${elapsed}d elapsed</span><span style="color:var(--warn)">${remainingDays}d left</span>
@@ -1452,13 +1521,12 @@ function renderDashboard(metrics) {
   <div class="dist-pct">${d.pct}%</div>
 </div>`).join('');
 
-  /* ── 3-column analytics row — Col 1: Reporters + Distribution stacked; Col 2: Bug vs Usability; Col 3: Milestones ── */
+  /* ── Charts section ── */
   const chartsSection = `
 <div>
   <div class="section-label">Analytics</div>
   <div class="analytics-grid">
 
-    <!-- COL 1: Top Reporters (top) + Output Distribution (bottom) stacked, filling full height -->
     <div class="analytics-col-left">
       <div class="card" style="flex:1">
         <div class="card-title">Top Reporters</div>
@@ -1474,7 +1542,6 @@ function renderDashboard(metrics) {
       </div>
     </div>
 
-    <!-- COL 2: Bug vs Usability by Priority × Severity -->
     <div class="card">
       <div class="card-title">Bug vs Usability by Priority × Severity</div>
       <div style="display:flex;gap:16px;margin-bottom:14px">
@@ -1496,7 +1563,6 @@ function renderDashboard(metrics) {
       </div>
     </div>
 
-    <!-- COL 3: Milestones -->
     <div class="card">
       <div class="card-title">Milestones — Open vs Closed</div>
       <div class="table-wrap">
@@ -1518,7 +1584,6 @@ function renderDashboard(metrics) {
   </div>
 </div>`;
 
-  /* ── Members section placeholder ── */
   const membersSection = `<div id="membersCardContainer"></div>`;
 
   const footer = `
@@ -1549,18 +1614,37 @@ async function loadDashboard() {
   document.getElementById('loadingScreen').style.display = 'flex';
   document.getElementById('dashboardRoot').style.display = 'none';
   try {
+    /* 1. Fetch timelines first */
+    setStatus('Fetching sprint timelines…');
+    _sprints = await fetchTimelines();
+
+    /* 2. Auto-select the current sprint (most recent one whose end date >= today),
+          or fall back to the last sprint in the list */
+    if (_sprints.length) {
+      const now = new Date();
+      const current = _sprints.find(s => s.endDate && s.endDate >= now);
+      _selectedSprint = current || _sprints[_sprints.length - 1];
+    }
+
+    /* 3. Fetch all tickets */
     setStatus('Fetching ticket data from Google Sheets…');
     const rows = await fetchSheetData();
     if (!rows || rows.length < 2) throw new Error('No data found in ALL TICKETS tab.');
     setStatus(`Parsing ${rows.length - 1} ticket(s)…`);
-    const tickets = parseTickets(rows);
-    if (!tickets.length) throw new Error('Could not parse any tickets. Check that row 3 has the correct headers.');
+    _allTickets = parseTickets(rows);
+    if (!_allTickets.length) throw new Error('Could not parse any tickets. Check that row 3 has the correct headers.');
+
+    /* 4. Filter by selected sprint & compute metrics */
     setStatus('Computing metrics…');
-    const metrics = computeMetrics(tickets);
+    const filtered = filterTicketsBySprint(_allTickets);
+    const metrics  = computeMetrics(filtered);
+
+    /* 5. Render */
     setStatus('Rendering dashboard…');
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('dashboardRoot').style.display = 'block';
     renderDashboard(metrics);
+
   } catch (err) {
     document.getElementById('loadingScreen').style.display = 'none';
     if (accessToken) {
