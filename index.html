@@ -153,7 +153,10 @@ body::after {
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 .grid-2 > .card { height: 100%; }
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; align-items: start; }
+.grid-auto { display: grid; grid-template-columns: repeat(9, 1fr); gap: 12px; }
+@media (max-width: 1200px) { .grid-auto { grid-template-columns: repeat(5, 1fr); } }
+@media (max-width: 700px)  { .grid-auto { grid-template-columns: repeat(3, 1fr); } }
 
 /* ── Cards ── */
 .card {
@@ -230,7 +233,7 @@ body::after {
 /* ── KPIs ── */
 .kpi {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r-lg); padding: 20px;
+  border-radius: var(--r-lg); padding: 16px 14px;
   position: relative; overflow: hidden;
 }
 .kpi.c-accent  { border-top: 2px solid var(--accent);  }
@@ -238,9 +241,9 @@ body::after {
 .kpi.c-warn    { border-top: 2px solid var(--warn);    }
 .kpi.c-danger  { border-top: 2px solid var(--danger);  }
 .kpi.c-purple  { border-top: 2px solid var(--purple);  }
-.kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; font-weight: 600; }
-.kpi-value { font-family: var(--mono); font-size: 30px; font-weight: 400; line-height: 1; color: var(--text); }
-.kpi-sub   { font-size: 11px; color: var(--text-dim); margin-top: 10px; }
+.kpi-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; font-weight: 600; }
+.kpi-value { font-family: var(--mono); font-size: 24px; font-weight: 400; line-height: 1; color: var(--text); }
+.kpi-sub   { font-size: 10px; color: var(--text-dim); margin-top: 8px; }
 
 /* ── Section label ── */
 .section-label {
@@ -538,8 +541,11 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
 }
 .members-showing { font-family: var(--mono); }
 
+@media (max-width: 1100px) {
+  .grid-4 { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 900px) {
-  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .topbar { flex-direction: column; align-items: flex-start; }
   .sprint-meta { gap: 16px; }
   .members-controls { flex-wrap: wrap; }
@@ -822,18 +828,6 @@ function computeMetrics(tickets) {
     { label:'Closed',     value:closed,     pct:pct(closed),     color:'#3a4260' },
   ];
 
-  // Urgent issues
-  const urgent = tickets
-    .filter(t => t.status.toLowerCase()!=='closed' && ['urgent','high'].includes(getPriority(t)))
-    .sort((a,b) => (getPriority(a)==='urgent'?0:1)-(getPriority(b)==='urgent'?0:1))
-    .slice(0,8)
-    .map(t => ({
-      level: getPriority(t)==='urgent'?'Urgent':'High',
-      color: getPriority(t)==='urgent'?'#ff5577':'#ffb84d',
-      label: t.milestone || t.project || '',
-      title: t.title,
-    }));
-
   // Sprint dates
   const dates = tickets.map(t=>t.createdAt).filter(Boolean);
   let sprintStart='', sprintEnd='', remainingDays=0, totalDays=0;
@@ -865,7 +859,7 @@ function computeMetrics(tickets) {
     priorityCounts, milestones, msTotal,
     members, memberTotals,
     reporters: members.slice(0,6),
-    donut, urgent,
+    donut,
     sprintName, sprintStart, sprintEnd, totalDays, remainingDays,
   };
 }
@@ -892,7 +886,7 @@ function priClass(label) {
 ══════════════════════════════════════════════════ */
 let _allMembers   = [];
 let _memberTotals = {};
-let _sortField    = null;   // e.g. 'bug', 'usability', 'total', 'low', etc.
+let _sortField    = null;
 let _sortOpen     = false;
 let _searchQuery  = '';
 
@@ -907,18 +901,13 @@ function initMembersSection(members, memberTotals) {
 
 function getSortedFilteredMembers() {
   let list = [..._allMembers];
-
-  // Search
   if (_searchQuery.trim()) {
     const q = _searchQuery.toLowerCase().trim();
     list = list.filter(m => m.name.toLowerCase().includes(q));
   }
-
-  // Sort by selected field descending (highest first)
   if (_sortField) {
     list = list.sort((a, b) => (b[_sortField] || 0) - (a[_sortField] || 0));
   }
-
   return list;
 }
 
@@ -961,7 +950,6 @@ function sortOptionHTML(value, label, color) {
 }
 
 function selectSort(field) {
-  // Toggle off if clicking active sort
   _sortField = (_sortField === field) ? null : field;
   renderMembersSection();
 }
@@ -1012,9 +1000,7 @@ function renderMembersSection() {
   const list    = getSortedFilteredMembers();
   const total   = _allMembers.length;
   const active  = hasActiveSort();
-  const t       = _memberTotals;
 
-  // Body rows — all members, sorted
   let bodyHTML = '';
   if (list.length === 0) {
     bodyHTML = `<tr><td colspan="12"><div class="no-results">
@@ -1025,14 +1011,12 @@ function renderMembersSection() {
     bodyHTML = list.map(memberRowHTML).join('');
   }
 
-  // Totals row reflects the visible (possibly searched) set
   const fTot = list.reduce((acc, m) => {
     for (const k of ['bug','usability','bugReview','reopen','testCase','closed','low','med','high','urg','total'])
       acc[k] = (acc[k] || 0) + (m[k] || 0);
     return acc;
   }, {});
 
-  // Sort label for badge
   const SORT_LABELS = {
     bug: 'Bug', usability: 'Usability', bugReview: 'Bug Review',
     reopen: 'Reopen', testCase: 'Test Case', closed: 'Closed',
@@ -1048,7 +1032,6 @@ function renderMembersSection() {
       ${active ? `<span style="font-size:10px;font-family:var(--mono);color:var(--accent2);background:rgba(0,229,168,0.1);border:1px solid rgba(0,229,168,0.2);padding:2px 7px;border-radius:4px;letter-spacing:0">↓ ${SORT_LABELS[_sortField]}</span>` : ''}
     </div>
     <div class="members-controls">
-      <!-- Search -->
       <div class="members-search-wrap">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -1063,7 +1046,6 @@ function renderMembersSection() {
           autocomplete="off"
         >
       </div>
-      <!-- Sort -->
       <div style="position:relative" id="filterWrap">
         <button class="sort-btn${active ? ' active' : ''}" id="filterBtn" onclick="toggleFilterDropdown()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1073,13 +1055,11 @@ function renderMembersSection() {
           ${active ? `<span style="font-family:var(--mono);font-size:10px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:3px;margin-left:2px">${SORT_LABELS[_sortField]}</span>` : ''}
           <div class="sort-active-dot${active ? ' show' : ''}"></div>
         </button>
-        <!-- Sort Dropdown -->
         <div class="sort-dropdown${_sortOpen ? ' open' : ''}" id="filterDropdown">
           <div class="sort-dropdown-header">
             Sort by
             <button class="sort-clear-btn" onclick="clearAllFilters()">Clear sort</button>
           </div>
-
           <div class="sort-group-label">Ticket Type</div>
           ${sortOptionHTML('bug',       'Bug',        '#ffb84d')}
           ${sortOptionHTML('usability', 'Usability',  '#b07fff')}
@@ -1087,14 +1067,12 @@ function renderMembersSection() {
           ${sortOptionHTML('bugReview', 'Bug Review', '#00e5a8')}
           ${sortOptionHTML('reopen',    'Reopened',   '#ff5577')}
           ${sortOptionHTML('closed',    'Closed',     '#3a4260')}
-
           <div class="sort-divider"></div>
           <div class="sort-group-label">Priority</div>
           ${sortOptionHTML('low',  'Low Priority',    '#5b8fff')}
           ${sortOptionHTML('med',  'Medium Priority', '#b07fff')}
           ${sortOptionHTML('high', 'High Priority',   '#ffb84d')}
           ${sortOptionHTML('urg',  'Urgent',          '#ff5577')}
-
           <div class="sort-divider"></div>
           <div class="sort-group-label">General</div>
           ${sortOptionHTML('total', 'Total (default)', null)}
@@ -1115,7 +1093,7 @@ function renderMembersSection() {
             <th style="${_sortField==='reopen'?'color:var(--danger);':''}">Reopen</th>
             <th style="${_sortField==='testCase'?'color:var(--accent);':''}">Test Case</th>
             <th style="${_sortField==='closed'?'color:var(--accent2);':''}">Closed</th>
-            <th style="color:var(--low);${_sortField==='low'?'text-decoration:underline;':''}" >Low</th>
+            <th style="color:var(--low);${_sortField==='low'?'text-decoration:underline;':''}">Low</th>
             <th style="color:var(--med);${_sortField==='med'?'text-decoration:underline;':''}">Med</th>
             <th style="color:var(--high);${_sortField==='high'?'text-decoration:underline;':''}">High</th>
             <th style="color:var(--urg);${_sortField==='urg'?'text-decoration:underline;':''}">Urg</th>
@@ -1127,7 +1105,6 @@ function renderMembersSection() {
         </tbody>
       </table>
     </div>
-    <!-- Sticky footer totals -->
     <div class="members-tfoot-wrap">
       <table style="width:100%;border-collapse:collapse">
         <tfoot>
@@ -1178,13 +1155,13 @@ function renderMembersSection() {
 
 function renderDashboard(metrics) {
   const { total, closed, kpis, priorityCounts, milestones, msTotal,
-          members, memberTotals, reporters, donut, urgent,
+          members, memberTotals, reporters, donut,
           sprintName, sprintStart, sprintEnd, totalDays, remainingDays } = metrics;
 
   const elapsed    = totalDays - remainingDays;
   const pctElapsed = totalDays ? Math.min(100, Math.round((elapsed/totalDays)*100)) : 0;
 
-  /* Topbar */
+  /* ── Topbar ── */
   const topbar = `
 <div class="topbar slide-up">
   <div class="brand">
@@ -1217,14 +1194,14 @@ function renderDashboard(metrics) {
   </div>
 </div>`;
 
-  /* Announce */
+  /* ── Announce ── */
   const announce = `
 <div class="announce fade-in">
   <div class="announce-dot"></div>
   <span>Live data · ${total} tickets loaded · Last refreshed ${new Date().toLocaleTimeString()}</span>
 </div>`;
 
-  /* KPIs */
+  /* ── KPIs ── */
   const kpiHtml = kpis.map((k,i) => `
 <div class="kpi ${k.color} slide-up" style="animation-delay:${i*0.04}s">
   <div class="kpi-label">${k.label}</div>
@@ -1238,7 +1215,7 @@ function renderDashboard(metrics) {
   <div class="grid-auto">${kpiHtml}</div>
 </div>`;
 
-  /* Priority matrix */
+  /* ── Priority matrix ── */
   const maxBug = Math.max(...priorityCounts.map(r=>r.bugs), 1);
   const matrixRows = priorityCounts.map(r => {
     const bw = Math.round((r.bugs/maxBug)*100);
@@ -1255,7 +1232,7 @@ function renderDashboard(metrics) {
   const totalBugs = priorityCounts.reduce((s,r)=>s+r.bugs,0);
   const totalUsab = priorityCounts.reduce((s,r)=>s+r.usability,0);
 
-  /* Milestones */
+  /* ── Milestones ── */
   const msRows = milestones.map(m => `
 <tr>
   <td>${m.name}</td>
@@ -1263,51 +1240,7 @@ function renderDashboard(metrics) {
   <td>${n(m.bugs)}</td><td>${n(m.usability)}</td>
 </tr>`).join('');
 
-  const prioritySection = `
-<div class="grid-2">
-  <div class="card">
-    <div class="card-title">Bug vs Usability by Priority × Severity</div>
-    <div style="display:flex;gap:16px;margin-bottom:14px">
-      <span style="font-size:11px;color:var(--warn);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block"></span>Bug</span>
-      <span style="font-size:11px;color:var(--accent);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Usability</span>
-    </div>
-    <div style="display:grid;grid-template-columns:110px 1fr 1fr 44px 44px;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:4px">
-      <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Priority</div>
-      <div style="font-size:10px;color:var(--warn);text-transform:uppercase;letter-spacing:0.08em">Bug</div>
-      <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em">Usab.</div>
-      <div></div><div></div>
-    </div>
-    ${matrixRows}
-    <div style="display:grid;grid-template-columns:110px 1fr 1fr 44px 44px;gap:8px;padding-top:10px;border-top:1px solid var(--border-bright);margin-top:4px">
-      <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Total</div>
-      <div></div><div></div>
-      <div style="text-align:right;font-family:var(--mono);font-size:12px;color:var(--warn);font-weight:500">${totalBugs}</div>
-      <div style="text-align:right;font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500">${totalUsab}</div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Milestones — Open vs Closed</div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr>
-          <th style="text-align:left">Milestone</th>
-          <th>Open</th><th>Closed</th><th>Bugs</th><th>Usab.</th>
-        </tr></thead>
-        <tbody>${msRows}</tbody>
-        <tfoot><tr>
-          <td>Total</td>
-          <td>${msTotal.open}</td><td>${msTotal.closed}</td>
-          <td>${msTotal.bugs}</td><td>${msTotal.usability}</td>
-        </tr></tfoot>
-      </table>
-    </div>
-  </div>
-</div>`;
-
-  /* Members section — placeholder div, populated by JS */
-  const membersSection = `<div id="membersCardContainer"></div>`;
-
-  /* Charts */
+  /* ── Top Reporters bars ── */
   const maxR = Math.max(...reporters.map(r=>r.total), 1);
   const repBars = reporters.map((r,i) => {
     const w   = Math.round((r.total/maxR)*100);
@@ -1319,6 +1252,7 @@ function renderDashboard(metrics) {
     </div>`;
   }).join('');
 
+  /* ── Distribution ── */
   const distItems = donut.map(d => `
 <div class="dist-item">
   <div class="dist-dot" style="background:${d.color}"></div>
@@ -1327,36 +1261,65 @@ function renderDashboard(metrics) {
   <div class="dist-pct">${d.pct}%</div>
 </div>`).join('');
 
-  const urgItems = urgent.length
-    ? urgent.map(i => `
-<div class="issue-item">
-  <div class="issue-meta">
-    <span class="p-tag" style="background:${i.color}22;color:${i.color};border:1px solid ${i.color}44">${i.level}</span>
-  </div>
-  <div class="issue-title">${i.title}</div>
-  <div class="issue-path">${i.label}</div>
-</div>`).join('')
-    : `<div style="font-size:12px;color:var(--text-dim);padding:16px 0">No urgent/high priority open tickets. 🎉</div>`;
-
+  /* ── 4-column charts row ── */
   const chartsSection = `
-<div class="grid-3">
-  <div class="card">
-    <div class="card-title">Top Reporters</div>
-    ${repBars}
-  </div>
-  <div class="card">
-    <div class="card-title">Output Distribution</div>
-    ${distItems}
-    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">
-      <span>Total tickets</span>
-      <span style="font-family:var(--mono);color:var(--text)">${donut.reduce((s,d)=>s+d.value,0)}</span>
+<div>
+  <div class="section-label">Analytics</div>
+  <div class="grid-4">
+    <div class="card">
+      <div class="card-title">Top Reporters</div>
+      ${repBars}
+    </div>
+    <div class="card">
+      <div class="card-title">Output Distribution</div>
+      ${distItems}
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">
+        <span>Total tickets</span>
+        <span style="font-family:var(--mono);color:var(--text)">${donut.reduce((s,d)=>s+d.value,0)}</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Bug vs Usability by Priority × Severity</div>
+      <div style="display:flex;gap:16px;margin-bottom:14px">
+        <span style="font-size:11px;color:var(--warn);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block"></span>Bug</span>
+        <span style="font-size:11px;color:var(--accent);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Usability</span>
+      </div>
+      <div style="display:grid;grid-template-columns:110px 1fr 1fr 44px 44px;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:4px">
+        <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Priority</div>
+        <div style="font-size:10px;color:var(--warn);text-transform:uppercase;letter-spacing:0.08em">Bug</div>
+        <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em">Usab.</div>
+        <div></div><div></div>
+      </div>
+      ${matrixRows}
+      <div style="display:grid;grid-template-columns:110px 1fr 1fr 44px 44px;gap:8px;padding-top:10px;border-top:1px solid var(--border-bright);margin-top:4px">
+        <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Total</div>
+        <div></div><div></div>
+        <div style="text-align:right;font-family:var(--mono);font-size:12px;color:var(--warn);font-weight:500">${totalBugs}</div>
+        <div style="text-align:right;font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500">${totalUsab}</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Milestones — Open vs Closed</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th style="text-align:left">Milestone</th>
+            <th>Open</th><th>Closed</th><th>Bugs</th><th>Usab.</th>
+          </tr></thead>
+          <tbody>${msRows}</tbody>
+          <tfoot><tr>
+            <td>Total</td>
+            <td>${msTotal.open}</td><td>${msTotal.closed}</td>
+            <td>${msTotal.bugs}</td><td>${msTotal.usability}</td>
+          </tr></tfoot>
+        </table>
+      </div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">Top Priority Issues</div>
-    ${urgItems}
-  </div>
 </div>`;
+
+  /* ── Members section placeholder ── */
+  const membersSection = `<div id="membersCardContainer"></div>`;
 
   const footer = `
 <div style="text-align:center;padding:20px 0 8px;font-size:11px;color:var(--text-dim);position:relative;z-index:1">
@@ -1368,13 +1331,11 @@ function renderDashboard(metrics) {
   ${topbar}
   ${announce}
   ${kpiSection}
-  ${prioritySection}
-  ${membersSection}
   ${chartsSection}
+  ${membersSection}
   ${footer}
 </div>`;
 
-  // Initialize interactive members section
   initMembersSection(members, memberTotals);
 }
 
