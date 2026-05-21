@@ -3,313 +3,608 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QA Performance Dashboard | CDS </title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>QA Performance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
-  --bg: #0d0f14;
-  --surface: #141720;
-  --surface2: #1c2030;
-  --border: #2a2f42;
-  --border-bright: #3d4460;
-  --text: #e8ecf5;
-  --text-muted: #7a84a0;
-  --text-dim: #4a5070;
-  --accent: #4f7cff;
-  --accent2: #00d4a0;
-  --warn: #f5a623;
-  --danger: #ff4f6a;
-  --low: #4f7cff;
-  --med: #a78bfa;
-  --high: #f5a623;
-  --urg: #ff4f6a;
-  --font: 'IBM Plex Sans', sans-serif;
-  --mono: 'IBM Plex Mono', monospace;
-  --radius: 8px;
-  --radius-lg: 12px;
+  --bg: #07090f;
+  --bg2: #0c0f1a;
+  --surface: #111520;
+  --surface2: #181d2e;
+  --surface3: #1e2438;
+  --border: #252b42;
+  --border-bright: #323c5c;
+  --text: #e4e9f7;
+  --text-muted: #6b778f;
+  --text-dim: #3a4260;
+  --accent: #5b8fff;
+  --accent2: #00e5a8;
+  --warn: #ffb84d;
+  --danger: #ff5577;
+  --purple: #b07fff;
+  --low: #5b8fff;
+  --med: #b07fff;
+  --high: #ffb84d;
+  --urg: #ff5577;
+  --font: 'Syne', sans-serif;
+  --mono: 'DM Mono', monospace;
+  --r: 10px;
+  --r-lg: 16px;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* CONFIG OVERLAY */
-.config-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Noise texture overlay ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+}
+
+/* ── Grid lines background ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(91,143,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,143,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ══════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════ */
+#loginScreen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 100; gap: 0;
+  background: var(--bg);
+}
+
+.login-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-radius: 20px;
+  padding: 48px 48px 40px;
+  width: 100%; max-width: 440px;
+  text-align: center;
+  box-shadow: 0 0 80px rgba(91,143,255,0.08), 0 0 0 1px rgba(91,143,255,0.1);
+  animation: fadeUp 0.6s ease both;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%; transform: translateX(-50%);
+  width: 60%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  border-radius: 2px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.login-logo {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--accent), #3a6de0);
+  border-radius: 18px;
   display: flex; align-items: center; justify-content: center;
-  z-index: 1000; backdrop-filter: blur(4px);
+  margin: 0 auto 24px;
+  font-family: var(--mono); font-size: 22px; font-weight: 500;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(91,143,255,0.3);
 }
-.config-box {
-  background: var(--surface); border: 1px solid var(--border-bright);
-  border-radius: var(--radius-lg); padding: 32px; width: 100%; max-width: 520px;
-}
-.config-box h2 { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
-.config-box p { font-size: 12px; color: var(--text-muted); margin-bottom: 24px; }
-.config-field { margin-bottom: 16px; }
-.config-field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 6px; }
-.config-field input, .config-field select {
-  width: 100%; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius); padding: 10px 12px; color: var(--text);
-  font-family: var(--mono); font-size: 12px; outline: none;
-  transition: border-color 0.2s;
-}
-.config-field input:focus, .config-field select:focus { border-color: var(--accent); }
-.config-hint { font-size: 11px; color: var(--text-dim); margin-top: 5px; }
-.config-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.btn-primary {
-  width: 100%; padding: 12px; background: var(--accent); color: #fff;
-  border: none; border-radius: var(--radius); font-family: var(--font);
-  font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 8px;
-  transition: opacity 0.2s;
-}
-.btn-primary:hover { opacity: 0.88; }
-.btn-secondary {
-  background: transparent; border: 1px solid var(--border);
-  color: var(--text-muted); border-radius: var(--radius);
-  padding: 8px 16px; font-family: var(--font); font-size: 12px;
-  cursor: pointer; transition: border-color 0.2s;
-}
-.btn-secondary:hover { border-color: var(--accent); color: var(--text); }
 
-/* LOADING */
-.loading-screen {
-  position: fixed; inset: 0; background: var(--bg);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  z-index: 999; gap: 16px;
+.login-title {
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
 }
-.loading-spinner {
-  width: 36px; height: 36px; border: 3px solid var(--border);
-  border-top-color: var(--accent); border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+
+.login-sub {
+  font-size: 13px; color: var(--text-muted);
+  margin-bottom: 32px; line-height: 1.5;
+}
+
+.login-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 24px;
+}
+.login-divider::before, .login-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+.login-divider span { font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
+
+#googleSignInBtn {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 14px 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--r);
+  color: var(--text);
+  font-family: var(--font); font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#googleSignInBtn:hover {
+  background: var(--surface3);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(91,143,255,0.12);
+}
+#googleSignInBtn svg { flex-shrink: 0; }
+
+.login-note {
+  margin-top: 20px;
+  font-size: 11px; color: var(--text-dim); line-height: 1.6;
+}
+
+#loginError {
+  display: none;
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: rgba(255,85,119,0.08);
+  border: 1px solid rgba(255,85,119,0.25);
+  border-radius: var(--r);
+  font-size: 12px; color: #ff8099;
+  text-align: left;
+}
+
+/* ══════════════════════════════════════
+   LOADING
+══════════════════════════════════════ */
+#loadingScreen {
+  position: fixed; inset: 0;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 99; gap: 20px;
+  background: var(--bg);
+}
+
+.loader-ring {
+  width: 48px; height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-text { font-size: 13px; color: var(--text-muted); font-family: var(--mono); }
-.loading-sub { font-size: 11px; color: var(--text-dim); }
 
-/* DASHBOARD */
-.dashboard { max-width: 1400px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 16px; }
+.loader-text { font-family: var(--mono); font-size: 13px; color: var(--text-muted); }
+.loader-sub  { font-size: 11px; color: var(--text-dim); }
+
+/* ══════════════════════════════════════
+   DASHBOARD LAYOUT
+══════════════════════════════════════ */
+#dashboardRoot { display: none; position: relative; z-index: 1; }
+
+.dash { max-width: 1440px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 16px; }
+
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
-.card-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
 
-/* HEADER */
-.header-bar {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 16px 24px;
-  display: flex; align-items: center; justify-content: space-between;
+/* ── Cards ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border-bright); }
+
+.card-title {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 18px;
+}
+
+/* ── Header ── */
+.topbar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px 24px;
+  display: flex; align-items: center;
+  justify-content: space-between;
   gap: 20px; flex-wrap: wrap;
 }
+
 .brand { display: flex; align-items: center; gap: 14px; }
 .brand-logo {
-  width: 40px; height: 40px; background: var(--accent);
-  border-radius: 10px; display: flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 16px; color: #fff; font-family: var(--mono); flex-shrink: 0;
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--accent), #3a6de0);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 15px; font-weight: 500; color: #fff;
+  box-shadow: 0 4px 16px rgba(91,143,255,0.25);
+  flex-shrink: 0;
 }
-.brand-name { font-size: 13px; font-weight: 500; }
-.brand-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.sprint-info { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-.sprint-label { font-family: var(--mono); font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-.sprint-value { font-size: 13px; font-weight: 500; margin-top: 3px; }
-.tag { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 500; font-family: var(--mono); }
-.tag-version { background: rgba(79,124,255,0.15); color: #7da4ff; border: 1px solid rgba(79,124,255,0.3); }
-.progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-top: 8px; }
-.progress-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+.brand-name { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.brand-sub  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.sprint-meta { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.meta-block .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.meta-block .val   { font-size: 13px; font-weight: 500; margin-top: 2px; }
+
+.progress-track { height: 5px; background: var(--surface2); border-radius: 3px; margin-top: 6px; width: 120px; overflow: hidden; }
+.progress-fill  { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; transition: width 1s ease; }
+
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 999px; font-size: 12px; color: var(--text-muted);
+}
+.user-avatar {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); display: flex;
+  align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 600; color: #fff;
+}
+
+.btn {
+  padding: 8px 16px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--r); color: var(--text-muted);
+  font-family: var(--font); font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all 0.2s;
+}
+.btn:hover { border-color: var(--accent); color: var(--text); }
+.btn-danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* ── Announce banner ── */
 .announce {
-  background: rgba(79,124,255,0.08); border: 1px solid rgba(79,124,255,0.25);
-  border-radius: var(--radius); padding: 10px 16px; font-size: 12px; color: #7da4ff;
+  background: rgba(91,143,255,0.06);
+  border: 1px solid rgba(91,143,255,0.2);
+  border-radius: var(--r);
+  padding: 10px 16px;
+  font-size: 12px; color: #7da4ff;
   display: flex; align-items: center; gap: 10px;
 }
+.announce-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent2);
+  box-shadow: 0 0 6px var(--accent2);
+  flex-shrink: 0;
+  animation: pulse 2s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
 
-/* KPI CARDS */
-.kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; position: relative; overflow: hidden; }
-.kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-.kpi-card.accent::before { background: var(--accent); }
-.kpi-card.green::before { background: var(--accent2); }
-.kpi-card.warn::before { background: var(--warn); }
-.kpi-card.danger::before { background: var(--danger); }
-.kpi-card.purple::before { background: #a78bfa; }
-.kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
-.kpi-value { font-size: 28px; font-weight: 300; font-family: var(--mono); color: var(--text); line-height: 1; }
-.kpi-sub { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+/* ── KPI cards ── */
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  position: relative; overflow: hidden;
+}
+.kpi::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  opacity: 0.6;
+}
+.kpi.c-accent  { border-top: 2px solid var(--accent);  }
+.kpi.c-green   { border-top: 2px solid var(--accent2); }
+.kpi.c-warn    { border-top: 2px solid var(--warn);    }
+.kpi.c-danger  { border-top: 2px solid var(--danger);  }
+.kpi.c-purple  { border-top: 2px solid var(--purple);  }
 
-/* TABLES */
+.kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; font-weight: 600; }
+.kpi-value { font-family: var(--mono); font-size: 30px; font-weight: 400; line-height: 1; color: var(--text); }
+.kpi-sub   { font-size: 11px; color: var(--text-dim); margin-top: 10px; }
+
+/* ── Section label ── */
+.section-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--text-dim);
+  display: flex; align-items: center; gap: 12px; margin-bottom: 4px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── Tables ── */
 .table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-thead th { text-align: right; font-size: 10px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); padding: 8px 10px; border-bottom: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  text-align: right;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-dim); padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
 thead th:first-child { text-align: left; }
-tbody tr { border-bottom: 1px solid rgba(42,47,66,0.5); transition: background 0.12s; }
-tbody tr:hover { background: rgba(255,255,255,0.025); }
-tbody td { padding: 9px 10px; text-align: right; color: var(--text-muted); font-family: var(--mono); font-size: 12px; }
-tbody td:first-child { text-align: left; font-family: var(--font); font-size: 13px; color: var(--text); }
-tfoot td { padding: 10px 10px; text-align: right; font-weight: 500; font-family: var(--mono); font-size: 12px; color: var(--text); border-top: 1px solid var(--border-bright); }
-tfoot td:first-child { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; }
-.num-zero { color: var(--text-dim) !important; }
-.priority-label { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 500; font-family: var(--mono); }
-.p-low    { background: rgba(79,124,255,0.12); color: #7da4ff; }
-.p-med    { background: rgba(167,139,250,0.12); color: #c4b5fd; }
-.p-high   { background: rgba(245,166,35,0.12);  color: #f5c060; }
-.p-urg    { background: rgba(255,79,106,0.12);  color: #ff8099; }
+tbody tr {
+  border-bottom: 1px solid rgba(37,43,66,0.6);
+  transition: background 0.12s;
+}
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+tbody td {
+  padding: 9px 10px; text-align: right;
+  color: var(--text-muted); font-family: var(--mono); font-size: 12px;
+}
+tbody td:first-child {
+  text-align: left; font-family: var(--font);
+  font-size: 13px; color: var(--text);
+}
+tfoot td {
+  padding: 10px 10px; text-align: right;
+  font-weight: 500; font-family: var(--mono); font-size: 12px;
+  color: var(--text); border-top: 1px solid var(--border-bright);
+}
+tfoot td:first-child {
+  text-align: left; font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
 
-/* MEMBER TABLE */
-.avatar { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; flex-shrink: 0; margin-right: 8px; vertical-align: middle; }
+.zero { color: var(--text-dim) !important; }
+
+/* ── Priority labels ── */
+.p-tag {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 4px; font-size: 10px; font-weight: 500;
+  font-family: var(--mono); letter-spacing: 0.04em;
+}
+.p-low  { background: rgba(91,143,255,0.12); color: #7da4ff; }
+.p-med  { background: rgba(176,127,255,0.12); color: #c9a8ff; }
+.p-high { background: rgba(255,184,77,0.12);  color: #ffd080; }
+.p-urg  { background: rgba(255,85,119,0.12);  color: #ff8099; }
+
+/* ── Member table avatar ── */
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600; flex-shrink: 0;
+  margin-right: 9px; vertical-align: middle;
+}
 .member-cell { display: flex; align-items: center; }
 
-/* CHARTS */
-.bar-track { height: 10px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 2px; }
-.reporter-bar-row { display: grid; grid-template-columns: 140px 1fr 30px; align-items: center; gap: 10px; margin-bottom: 9px; }
-.reporter-name { font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.donut-legend { display: flex; flex-direction: column; gap: 10px; }
-.legend-item { display: flex; align-items: center; gap: 10px; font-size: 12px; }
-.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+/* ── Bar charts ── */
+.bar-track { height: 8px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
 
-/* ISSUE LIST */
-.issue-item { padding: 12px 0; border-bottom: 1px solid rgba(42,47,66,0.5); }
+.rep-row { display: grid; grid-template-columns: 130px 1fr 36px; align-items: center; gap: 10px; margin-bottom: 10px; }
+.rep-name { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Distribution legend ── */
+.dist-item { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }
+.dist-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dist-label { flex: 1; font-size: 12px; color: var(--text-muted); }
+.dist-count { font-family: var(--mono); font-size: 12px; color: var(--text); }
+.dist-pct   { font-family: var(--mono); font-size: 11px; color: var(--text-dim); min-width: 44px; text-align: right; }
+
+/* ── Priority matrix ── */
+.matrix-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr 44px 44px;
+  align-items: center; gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(37,43,66,0.5);
+}
+.matrix-row:last-child { border-bottom: none; }
+
+/* ── Issue list ── */
+.issue-item { padding: 13px 0; border-bottom: 1px solid rgba(37,43,66,0.5); }
 .issue-item:last-child { border-bottom: none; }
 .issue-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
 .issue-title { font-size: 13px; color: var(--text); line-height: 1.4; }
 .issue-path { font-size: 11px; color: var(--text-dim); margin-top: 3px; font-family: var(--mono); }
 
-/* SECTION */
-.section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
-.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+/* ── Animations ── */
+.fade-in { animation: fadeIn 0.5s ease both; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* TOOLBAR */
-.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.error-banner { background: rgba(255,79,106,0.08); border: 1px solid rgba(255,79,106,0.3); border-radius: var(--radius); padding: 12px 16px; font-size: 12px; color: #ff8099; }
+.slide-up { animation: slideUp 0.5s ease both; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Error banner ── */
+.err-banner {
+  background: rgba(255,85,119,0.08);
+  border: 1px solid rgba(255,85,119,0.25);
+  border-radius: var(--r); padding: 12px 16px;
+  font-size: 12px; color: #ff8099;
+}
 
 @media (max-width: 900px) {
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
-  .header-bar { flex-direction: column; align-items: flex-start; }
+  .topbar { flex-direction: column; align-items: flex-start; }
+  .sprint-meta { gap: 16px; }
 }
 </style>
 </head>
 <body>
 
-<!-- CONFIG OVERLAY -->
-<div class="config-overlay" id="configOverlay">
-  <div class="config-box">
-    <h2>📊 QA Dashboard — Connect to Google Sheets</h2>
-    <p>Enter your Google Sheets API key and Spreadsheet ID to load live data from the "ALL TICKETS" tab.</p>
-
-    <div class="config-field">
-      <label>Google Sheets API Key</label>
-      <input type="password" id="apiKey" placeholder="AIza..." autocomplete="off" />
-      <div class="config-hint">Get one from <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">Google Cloud Console</a> → Enable Sheets API → Create API Key</div>
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">QA</div>
+    <div class="login-title">QA Performance Dashboard</div>
+    <div class="login-sub">Sign in with your Google account to access<br>live ticket data from the CDS tracker.</div>
+    <div class="login-divider"><span>continue with</span></div>
+    <button id="googleSignInBtn" onclick="startOAuth()">
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Sign in with Google
+    </button>
+    <div id="loginError"></div>
+    <div class="login-note">
+      Access is restricted to authorized accounts only.<br>
+      Your credentials are never stored on this page.
     </div>
-
-    <div class="config-field">
-      <label>Spreadsheet ID (LEADS_CDS_ID)</label>
-      <input type="text" id="spreadsheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" autocomplete="off" />
-      <div class="config-hint">Found in the Google Sheets URL: /spreadsheets/d/<strong>THIS_PART</strong>/edit</div>
-    </div>
-
-    <div class="config-row">
-      <div class="config-field">
-        <label>Sheet Tab Name</label>
-        <input type="text" id="sheetName" value="ALL TICKETS" />
-      </div>
-      <div class="config-field">
-        <label>Data Range (headers in row 3)</label>
-        <input type="text" id="dataRange" value="C3:T" />
-      </div>
-    </div>
-
-    <div class="config-field">
-      <label>Sprint Name (optional — auto-detected from data)</label>
-      <input type="text" id="sprintName" placeholder="e.g. 2026 E Sprint" />
-    </div>
-
-    <button class="btn-primary" onclick="loadDashboard()">🚀 Load Dashboard</button>
-
-    <div id="configError" style="display:none;margin-top:12px" class="error-banner"></div>
   </div>
 </div>
 
-<!-- LOADING SCREEN -->
-<div class="loading-screen" id="loadingScreen" style="display:none">
-  <div class="loading-spinner"></div>
-  <div class="loading-text">Fetching data from Google Sheets…</div>
-  <div class="loading-sub" id="loadingStatus">Connecting…</div>
+<!-- ══ LOADING ══ -->
+<div id="loadingScreen">
+  <div class="loader-ring"></div>
+  <div class="loader-text">Loading dashboard data…</div>
+  <div class="loader-sub" id="loadStatus">Connecting to Google Sheets…</div>
 </div>
 
-<!-- DASHBOARD CONTENT -->
-<div id="dashboardRoot" style="display:none"></div>
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboardRoot"></div>
 
 <script>
-/* ============================================================
-   CONFIG — stored in sessionStorage for convenience
-   ============================================================ */
-const CONFIG_KEY = 'qa_dashboard_config';
+/* ══════════════════════════════════════════════════
+   CONSTANTS
+══════════════════════════════════════════════════ */
+const CLIENT_ID      = '972002611239-cgrk0bk448av6d6fen10rhbm7cpf9rvu.apps.googleusercontent.com';
+const SHEET_ID       = '1HStlB0xNjCJWScZ35e_e1c7YxZ06huNqznfVUc-ZE5k';
+const SHEET_TAB      = 'ALL TICKETS';
+const DATA_RANGE     = 'C3:T';
+const SCOPES         = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 
-const AVATAR_COLORS = ['#4f7cff','#a78bfa','#00d4a0','#f5a623','#ff4f6a','#3dd6f5','#f06292','#aed581','#ffb74d'];
+const AVATAR_COLORS  = ['#5b8fff','#b07fff','#00e5a8','#ffb84d','#ff5577','#3dd6f5','#f06292','#aed581','#ffb74d'];
 
-function avatarColor(name) {
-  let h = 0;
-  for (let c of name) h = (h * 31 + c.charCodeAt(0)) % AVATAR_COLORS.length;
-  return AVATAR_COLORS[Math.abs(h)];
-}
+let accessToken = null;
+let currentUser = { name: 'User', email: '', initials: 'U' };
 
-function initials(name) {
-  return (name || '').split(' ').slice(0,2).map(w => w[0] || '').join('').toUpperCase();
-}
+/* ══════════════════════════════════════════════════
+   OAUTH — Google Identity Services (GIS)
+══════════════════════════════════════════════════ */
+let tokenClient = null;
 
-function n(v) {
-  return (v === 0 || v === '0') ? `<span class="num-zero">—</span>` : v;
-}
+function startOAuth() {
+  const btn = document.getElementById('googleSignInBtn');
+  btn.disabled = true;
+  btn.textContent = 'Connecting…';
 
-/* ============================================================
-   LOAD — entry point from config form
-   ============================================================ */
-async function loadDashboard() {
-  const apiKey       = document.getElementById('apiKey').value.trim();
-  const spreadsheetId = document.getElementById('spreadsheetId').value.trim();
-  const sheetName    = document.getElementById('sheetName').value.trim() || 'ALL TICKETS';
-  const dataRange    = document.getElementById('dataRange').value.trim() || 'C3:T';
-  const sprintName   = document.getElementById('sprintName').value.trim();
-
-  if (!apiKey || !spreadsheetId) {
-    showConfigError('API Key and Spreadsheet ID are required.');
+  // Load GIS if not yet loaded
+  if (typeof google === 'undefined' || !google.accounts) {
+    showLoginError('Google Sign-In library not loaded. Please refresh the page.');
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Sign in with Google`;
     return;
   }
 
-  sessionStorage.setItem(CONFIG_KEY, JSON.stringify({ apiKey, spreadsheetId, sheetName, dataRange, sprintName }));
-  await fetchAndRender({ apiKey, spreadsheetId, sheetName, dataRange, sprintName });
+  if (!tokenClient) {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: handleTokenResponse,
+      error_callback: (err) => {
+        showLoginError('Sign-in failed: ' + (err.message || JSON.stringify(err)));
+        resetSignInBtn();
+      }
+    });
+  }
+
+  tokenClient.requestAccessToken({ prompt: 'consent' });
 }
 
-function showConfigError(msg) {
-  const el = document.getElementById('configError');
-  el.textContent = '⚠️ ' + msg;
+function handleTokenResponse(resp) {
+  if (resp.error) {
+    showLoginError('Authentication error: ' + resp.error);
+    resetSignInBtn();
+    return;
+  }
+  accessToken = resp.access_token;
+
+  // Get user info
+  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  })
+  .then(r => r.json())
+  .then(info => {
+    currentUser.name     = info.name || info.email || 'User';
+    currentUser.email    = info.email || '';
+    currentUser.initials = (info.name || 'U').split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+    loadDashboard();
+  })
+  .catch(() => loadDashboard());
+}
+
+function handleTokenError(err) {
+  showLoginError('Sign-in failed. Please try again.');
+  resetSignInBtn();
+}
+
+function resetSignInBtn() {
+  const btn = document.getElementById('googleSignInBtn');
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Sign in with Google`;
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = '⚠ ' + msg;
   el.style.display = 'block';
 }
 
-function setLoading(msg) {
-  document.getElementById('loadingStatus').textContent = msg;
+function signOut() {
+  if (accessToken && typeof google !== 'undefined') {
+    google.accounts.oauth2.revoke(accessToken, () => {});
+  }
+  accessToken = null;
+  document.getElementById('dashboardRoot').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  resetSignInBtn();
 }
 
-/* ============================================================
-   FETCH from Google Sheets API v4
-   ============================================================ */
-async function fetchSheetData({ apiKey, spreadsheetId, sheetName, dataRange }) {
-  const range = encodeURIComponent(`'${sheetName}'!${dataRange}`);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?valueRenderOption=FORMATTED_VALUE&key=${apiKey}`;
+/* ══════════════════════════════════════════════════
+   FETCH SHEET DATA
+══════════════════════════════════════════════════ */
+async function fetchSheetData() {
+  const range = encodeURIComponent(`'${SHEET_TAB}'!${DATA_RANGE}`);
+  const url   = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueRenderOption=FORMATTED_VALUE`;
 
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+
+  if (res.status === 401) {
+    signOut();
+    throw new Error('Session expired. Please sign in again.');
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err?.error?.message || `HTTP ${res.status}`);
   }
+
   const data = await res.json();
   return data.values || [];
 }
 
-/* ============================================================
-   PARSE rows into ticket objects
-   Headers (row 0 of values):
-   ID IID Title Author Assignee Labels Milestone Status
-   Created At Closed At Closed By Project QA Reviewer
-   Reopened? Reopened By Reopened At Local Status Passed On
-   ============================================================ */
+/* ══════════════════════════════════════════════════
+   PARSE TICKETS
+══════════════════════════════════════════════════ */
 function parseTickets(rows) {
   if (!rows.length) return [];
   const headers = rows[0].map(h => h.trim());
@@ -355,33 +650,34 @@ function parseTickets(rows) {
   }).filter(t => t.id);
 }
 
-/* ============================================================
-   COMPUTE METRICS from parsed tickets
-   ============================================================ */
-function computeMetrics(tickets, sprintNameOverride) {
-  const total     = tickets.length;
-  const closed    = tickets.filter(t => t.status.toLowerCase() === 'closed').length;
-  const open      = tickets.filter(t => t.status.toLowerCase() !== 'closed').length;
-  const resPct    = total ? ((closed / total) * 100).toFixed(2) + '%' : '0%';
+/* ══════════════════════════════════════════════════
+   COMPUTE METRICS
+══════════════════════════════════════════════════ */
+function computeMetrics(tickets) {
+  const total   = tickets.length;
+  const closed  = tickets.filter(t => t.status.toLowerCase() === 'closed').length;
+  const open    = total - closed;
+  const resPct  = total ? ((closed / total) * 100).toFixed(1) + '%' : '0%';
 
-  // Label helpers
-  const hasLabel  = (t, s) => t.labels.some(l => l.toLowerCase().includes(s.toLowerCase()));
+  const hasLabel = (t, s) => t.labels.some(l => l.toLowerCase().includes(s.toLowerCase()));
 
-  const manualQA  = tickets.filter(t => hasLabel(t, 'Manual QA For Review')).length;
-  const autoQA    = tickets.filter(t => hasLabel(t, 'Automation') || hasLabel(t, 'For Automation')).length;
-  const leadQA    = tickets.filter(t => hasLabel(t, 'QA Lead') || hasLabel(t, 'For QA Lead')).length;
-  const reviewed  = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('reviewed') || hasLabel(t, 'Reviewed Test Case')).length;
-  const changes   = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('changes requested')).length;
-  const onHold    = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('on hold')).length;
+  const manualQA = tickets.filter(t => hasLabel(t, 'Manual QA For Review')).length;
+  const autoQA   = tickets.filter(t => hasLabel(t, 'Automation') || hasLabel(t, 'For Automation')).length;
+  const leadQA   = tickets.filter(t => hasLabel(t, 'QA Lead') || hasLabel(t, 'For QA Lead')).length;
+  const reviewed = tickets.filter(t =>
+    (t.localStatus || '').toLowerCase().includes('reviewed') ||
+    hasLabel(t, 'Reviewed Test Case')
+  ).length;
+  const changes  = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('changes requested')).length;
+  const onHold   = tickets.filter(t => (t.localStatus || '').toLowerCase().includes('on hold')).length;
 
-  // Priority extraction from labels
   const getPriority = t => {
     for (const l of t.labels) {
       const lc = l.toLowerCase();
       if (lc.includes('urgent') || lc.includes('urg')) return 'urgent';
-      if (lc.includes('high')) return 'high';
+      if (lc.includes('high'))   return 'high';
       if (lc.includes('medium') || lc.includes('med')) return 'medium';
-      if (lc.includes('low')) return 'low';
+      if (lc.includes('low'))    return 'low';
     }
     return 'none';
   };
@@ -390,271 +686,284 @@ function computeMetrics(tickets, sprintNameOverride) {
     for (const l of t.labels) {
       const lc = l.toLowerCase();
       if (lc.includes('critical')) return 'critical';
-      if (lc.includes('major')) return 'major';
-      if (lc.includes('minor')) return 'minor';
+      if (lc.includes('major'))    return 'major';
+      if (lc.includes('minor'))    return 'minor';
     }
     return 'none';
   };
 
   const getType = t => {
-    if (t.labels.some(l => l.toLowerCase().includes('test case'))) return 'Test Case';
+    if (t.labels.some(l => l.toLowerCase().includes('test case')))  return 'Test Case';
     if (t.labels.some(l => l.toLowerCase().includes('usability'))) return 'Usability';
-    if (t.labels.some(l => l.toLowerCase().includes('bug'))) return 'Bug';
+    if (t.labels.some(l => l.toLowerCase().includes('bug')))       return 'Bug';
     return 'Other';
   };
 
-  // Priority x Severity distribution (for bugs + usability)
-  const PRIO  = ['low', 'medium', 'high', 'urgent'];
-  const SEV   = ['minor', 'major', 'critical'];
-  const PRIO_LABELS = { low: 'Low', medium: 'Med', high: 'High', urgent: 'Urg' };
-  const SEV_LABELS  = { minor: 'Minor', major: 'Major', critical: 'Critical' };
+  // Priority × Severity matrix
+  const PRIO  = ['low','medium','high','urgent'];
+  const SEV   = ['minor','major','critical'];
+  const PL    = { low:'Low', medium:'Med', high:'High', urgent:'Urg' };
+  const SL    = { minor:'Minor', major:'Major', critical:'Critical' };
 
   const priorityCounts = [];
-  for (const p of PRIO) {
-    for (const s of SEV) {
-      const bugs       = tickets.filter(t => getPriority(t) === p && getSeverity(t) === s && getType(t) === 'Bug').length;
-      const usability  = tickets.filter(t => getPriority(t) === p && getSeverity(t) === s && getType(t) === 'Usability').length;
-      priorityCounts.push({ label: `${PRIO_LABELS[p]}-${SEV_LABELS[s]}`, bugs, usability });
-    }
+  for (const p of PRIO) for (const s of SEV) {
+    const bugs      = tickets.filter(t => getPriority(t)===p && getSeverity(t)===s && getType(t)==='Bug').length;
+    const usability = tickets.filter(t => getPriority(t)===p && getSeverity(t)===s && getType(t)==='Usability').length;
+    priorityCounts.push({ label:`${PL[p]}-${SL[s]}`, prio:p, bugs, usability });
   }
 
   // Milestones
-  const milestoneMap = {};
+  const msMap = {};
   for (const t of tickets) {
     const m = t.milestone || '(No Milestone)';
-    if (!milestoneMap[m]) milestoneMap[m] = { open: 0, closed: 0, bugs: 0, usability: 0 };
-    if (t.status.toLowerCase() === 'closed') milestoneMap[m].closed++;
-    else milestoneMap[m].open++;
-    if (getType(t) === 'Bug') milestoneMap[m].bugs++;
-    if (getType(t) === 'Usability') milestoneMap[m].usability++;
+    if (!msMap[m]) msMap[m] = { open:0, closed:0, bugs:0, usability:0 };
+    t.status.toLowerCase()==='closed' ? msMap[m].closed++ : msMap[m].open++;
+    if (getType(t)==='Bug')       msMap[m].bugs++;
+    if (getType(t)==='Usability') msMap[m].usability++;
   }
-  const milestones = Object.entries(milestoneMap)
-    .map(([name, v]) => ({ name, ...v }))
-    .sort((a, b) => (b.open + b.closed) - (a.open + a.closed));
+  const milestones = Object.entries(msMap)
+    .map(([name,v]) => ({name,...v}))
+    .sort((a,b) => (b.open+b.closed)-(a.open+a.closed));
+  const msTotal = milestones.reduce((acc,m) => ({
+    open:    acc.open+m.open,
+    closed:  acc.closed+m.closed,
+    bugs:    acc.bugs+m.bugs,
+    usability: acc.usability+m.usability,
+  }), {open:0,closed:0,bugs:0,usability:0});
 
-  const msTotal = {
-    open: milestones.reduce((s,m) => s+m.open, 0),
-    closed: milestones.reduce((s,m) => s+m.closed, 0),
-    bugs: milestones.reduce((s,m) => s+m.bugs, 0),
-    usability: milestones.reduce((s,m) => s+m.usability, 0),
-  };
-
-  // Members — keyed by Author
+  // Members
   const memberMap = {};
-  const bump = (map, key, field, amt=1) => {
+  const bump = (key, field) => {
     if (!key) return;
-    if (!map[key]) map[key] = { bug:0, usability:0, bugReview:0, reopen:0, testCase:0, closed:0, low:0, med:0, high:0, urg:0, total:0 };
-    map[key][field] = (map[key][field] || 0) + amt;
+    if (!memberMap[key]) memberMap[key] = {bug:0,usability:0,bugReview:0,reopen:0,testCase:0,closed:0,low:0,med:0,high:0,urg:0,total:0};
+    memberMap[key][field]++;
   };
-
   for (const t of tickets) {
-    const author = t.author || 'Unknown';
+    const a = t.author || 'Unknown';
     const type = getType(t);
     const prio = getPriority(t);
-
-    if (type === 'Bug') bump(memberMap, author, 'bug');
-    else if (type === 'Usability') bump(memberMap, author, 'usability');
-    else if (type === 'Test Case') bump(memberMap, author, 'testCase');
-
-    if (t.labels.some(l => l.toLowerCase().includes('bug review'))) bump(memberMap, author, 'bugReview');
-    if (t.reopened.toLowerCase() === 'yes') bump(memberMap, author, 'reopen');
-    if (t.status.toLowerCase() === 'closed') bump(memberMap, author, 'closed');
-
-    if (prio === 'low')    bump(memberMap, author, 'low');
-    if (prio === 'medium') bump(memberMap, author, 'med');
-    if (prio === 'high')   bump(memberMap, author, 'high');
-    if (prio === 'urgent') bump(memberMap, author, 'urg');
-
-    bump(memberMap, author, 'total');
+    if (type==='Bug')       bump(a,'bug');
+    else if (type==='Usability') bump(a,'usability');
+    else if (type==='Test Case') bump(a,'testCase');
+    if (t.labels.some(l=>l.toLowerCase().includes('bug review'))) bump(a,'bugReview');
+    if (t.reopened.toLowerCase()==='yes') bump(a,'reopen');
+    if (t.status.toLowerCase()==='closed') bump(a,'closed');
+    if (prio==='low')    bump(a,'low');
+    if (prio==='medium') bump(a,'med');
+    if (prio==='high')   bump(a,'high');
+    if (prio==='urgent') bump(a,'urg');
+    bump(a,'total');
   }
-
   const members = Object.entries(memberMap)
-    .map(([name, v]) => ({ name, ...v }))
-    .sort((a, b) => b.total - a.total);
-
-  const memberTotals = members.reduce((acc, m) => {
-    for (const k of Object.keys(m)) if (k !== 'name') acc[k] = (acc[k]||0) + m[k];
+    .map(([name,v]) => ({name,...v}))
+    .sort((a,b) => b.total-a.total);
+  const memberTotals = members.reduce((acc,m) => {
+    for (const k of Object.keys(m)) if (k!=='name') acc[k]=(acc[k]||0)+m[k];
     return acc;
   }, {});
 
-  // Top reporters (by total ticket count)
-  const reporters = members.slice(0, 6);
+  // Distribution donut
+  const bugCount     = tickets.filter(t=>getType(t)==='Bug').length;
+  const usabCount    = tickets.filter(t=>getType(t)==='Usability').length;
+  const tcCount      = tickets.filter(t=>getType(t)==='Test Case').length;
+  const bugRevCount  = tickets.filter(t=>t.labels.some(l=>l.toLowerCase().includes('bug review'))).length;
+  const reopenCount  = tickets.filter(t=>t.reopened.toLowerCase()==='yes').length;
+  const distTotal    = bugCount+usabCount+tcCount+bugRevCount+reopenCount+closed;
+  const pct = v => distTotal ? ((v/distTotal)*100).toFixed(1) : 0;
 
-  // Output distribution
-  const bugCount      = tickets.filter(t => getType(t) === 'Bug').length;
-  const usabCount     = tickets.filter(t => getType(t) === 'Usability').length;
-  const tcCount       = tickets.filter(t => getType(t) === 'Test Case').length;
-  const bugRevCount   = tickets.filter(t => t.labels.some(l => l.toLowerCase().includes('bug review'))).length;
-  const reopenCount   = tickets.filter(t => t.reopened.toLowerCase() === 'yes').length;
-  const dist_total    = bugCount + usabCount + tcCount + bugRevCount + reopenCount + closed;
-  const pct = v => dist_total ? ((v/dist_total)*100).toFixed(1) : 0;
   const donut = [
-    { label: 'Test Case',  value: tcCount,    pct: pct(tcCount),    color: '#4f7cff' },
-    { label: 'Bug Review', value: bugRevCount, pct: pct(bugRevCount),color: '#00d4a0' },
-    { label: 'Bug',        value: bugCount,   pct: pct(bugCount),   color: '#f5a623' },
-    { label: 'Usability',  value: usabCount,  pct: pct(usabCount),  color: '#a78bfa' },
-    { label: 'Reopen',     value: reopenCount,pct: pct(reopenCount),color: '#ff4f6a' },
-    { label: 'Closed',     value: closed,     pct: pct(closed),     color: '#4a5070' },
+    { label:'Test Case',  value:tcCount,    pct:pct(tcCount),    color:'#5b8fff' },
+    { label:'Bug Review', value:bugRevCount,pct:pct(bugRevCount),color:'#00e5a8' },
+    { label:'Bug',        value:bugCount,   pct:pct(bugCount),   color:'#ffb84d' },
+    { label:'Usability',  value:usabCount,  pct:pct(usabCount),  color:'#b07fff' },
+    { label:'Reopen',     value:reopenCount,pct:pct(reopenCount),color:'#ff5577' },
+    { label:'Closed',     value:closed,     pct:pct(closed),     color:'#3a4260' },
   ];
 
-  // Top priority issues (urgent first, then high) — open only
+  // Top priority open issues
   const urgent = tickets
-    .filter(t => t.status.toLowerCase() !== 'closed' && (getPriority(t) === 'urgent' || getPriority(t) === 'high'))
-    .sort((a,b) => {
-      const order = {urgent:0, high:1};
-      return (order[getPriority(a)]||2) - (order[getPriority(b)]||2);
-    })
-    .slice(0, 8)
+    .filter(t => t.status.toLowerCase()!=='closed' && ['urgent','high'].includes(getPriority(t)))
+    .sort((a,b) => (getPriority(a)==='urgent'?0:1)-(getPriority(b)==='urgent'?0:1))
+    .slice(0,8)
     .map(t => ({
-      level: getPriority(t) === 'urgent' ? 'Urgent' : 'High',
-      color: getPriority(t) === 'urgent' ? '#ff4f6a' : '#f5a623',
-      label: t.milestone || t.project || '',
-      title: t.title,
+      level:  getPriority(t)==='urgent'?'Urgent':'High',
+      color:  getPriority(t)==='urgent'?'#ff5577':'#ffb84d',
+      label:  t.milestone || t.project || '',
+      title:  t.title,
     }));
 
-  // Sprint dates from data
-  const dates = tickets.map(t => t.createdAt).filter(Boolean);
-  let sprintStart = '', sprintEnd = '', remainingDays = 0, totalDays = 0;
+  // Sprint date info
+  const dates = tickets.map(t=>t.createdAt).filter(Boolean);
+  let sprintStart='', sprintEnd='', remainingDays=0, totalDays=0;
   if (dates.length) {
-    sprintStart = dates[dates.length - 1]; // oldest
-    sprintEnd   = dates[0];                // newest
-    // Try to compute days remaining (simple rough estimate)
+    sprintStart = dates[dates.length-1];
+    sprintEnd   = dates[0];
     try {
-      const parseDate = d => {
-        const m = d.match(/(\w+),\s+(\w+)\s+(\d+),\s+(\d+)/);
-        if (m) return new Date(`${m[2]} ${m[3]}, ${m[4]}`);
-        return new Date(d);
-      };
-      const start = parseDate(sprintStart);
-      const end   = parseDate(sprintEnd);
-      const today = new Date();
-      totalDays    = Math.max(1, Math.round((end - start) / 86400000));
-      remainingDays= Math.max(0, Math.round((end - today) / 86400000));
-    } catch(e) {}
+      const parseD = d => { const m=d.match(/(\w+),\s+(\w+)\s+(\d+),\s+(\d+)/); return m?new Date(`${m[2]} ${m[3]}, ${m[4]}`):new Date(d); };
+      const s=parseD(sprintStart), e=parseD(sprintEnd), now=new Date();
+      totalDays    = Math.max(1,Math.round((e-s)/86400000));
+      remainingDays= Math.max(0,Math.round((e-now)/86400000));
+    } catch(e){}
   }
 
-  // Detect sprint name from milestone or override
-  const sprintName = sprintNameOverride ||
-    (milestones.length ? milestones[0].name : 'Current Sprint');
+  const sprintName = milestones.length ? milestones[0].name : 'Current Sprint';
 
   const kpis = [
-    { label: 'Resolution Rate',       value: resPct,          sub: `${closed} of ${total} tickets closed`,    color: 'warn'   },
-    { label: 'Tickets Created',       value: String(total),   sub: 'This sprint',                             color: 'accent' },
-    { label: 'Tickets Closed',        value: String(closed),  sub: `Progress: ${resPct}`,                     color: 'green'  },
-    { label: 'For Manual QA Review',  value: String(manualQA), sub: 'Pending review',                         color: 'accent' },
-    { label: 'For Automation Review', value: String(autoQA),  sub: 'Awaiting automation QA',                  color: 'purple' },
-    { label: 'For QA Lead Review',    value: String(leadQA),  sub: 'Needs lead sign-off',                     color: 'warn'   },
-    { label: 'Reviewed Test Cases',   value: String(reviewed), sub: 'Completed reviews',                      color: 'green'  },
-    { label: 'Changes Requested',     value: String(changes), sub: 'Revisions needed',                        color: 'danger' },
-    { label: 'On Hold',               value: String(onHold),  sub: 'Suspended tickets',                       color: 'danger' },
+    { label:'Resolution Rate',       value:resPct,           sub:`${closed} of ${total} closed`,      color:'c-warn'   },
+    { label:'Tickets Created',       value:String(total),    sub:'This sprint',                        color:'c-accent' },
+    { label:'Tickets Closed',        value:String(closed),   sub:`${open} remaining open`,             color:'c-green'  },
+    { label:'For Manual QA Review',  value:String(manualQA), sub:'Pending review',                     color:'c-accent' },
+    { label:'For Automation Review', value:String(autoQA),   sub:'Awaiting automation QA',             color:'c-purple' },
+    { label:'For QA Lead Review',    value:String(leadQA),   sub:'Needs lead sign-off',                color:'c-warn'   },
+    { label:'Reviewed Test Cases',   value:String(reviewed), sub:'Completed reviews',                  color:'c-green'  },
+    { label:'Changes Requested',     value:String(changes),  sub:'Revisions needed',                   color:'c-danger' },
+    { label:'On Hold',               value:String(onHold),   sub:'Suspended tickets',                  color:'c-danger' },
   ];
 
   return {
     total, closed, open, kpis,
     priorityCounts, milestones, msTotal,
-    members, memberTotals, reporters, donut,
-    urgent, sprintName, sprintStart, sprintEnd, totalDays, remainingDays,
+    members, memberTotals,
+    reporters: members.slice(0,6),
+    donut, urgent,
+    sprintName, sprintStart, sprintEnd,
+    totalDays, remainingDays,
   };
 }
 
-/* ============================================================
+/* ══════════════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════════════ */
+function avatarColor(name) {
+  let h = 0;
+  for (const c of name) h = (h*31 + c.charCodeAt(0)) % AVATAR_COLORS.length;
+  return AVATAR_COLORS[Math.abs(h)];
+}
+function initials(name) {
+  return (name||'').split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+}
+function n(v) {
+  return (v===0||v==='0') ? `<span class="zero">—</span>` : v;
+}
+function priClass(label) {
+  if (label.startsWith('Urg')) return 'p-urg';
+  if (label.startsWith('High')) return 'p-high';
+  if (label.startsWith('Med')) return 'p-med';
+  return 'p-low';
+}
+
+/* ══════════════════════════════════════════════════
    RENDER
-   ============================================================ */
-function renderDashboard(metrics, config) {
+══════════════════════════════════════════════════ */
+function renderDashboard(metrics) {
   const { total, closed, kpis, priorityCounts, milestones, msTotal,
           members, memberTotals, reporters, donut, urgent,
           sprintName, sprintStart, sprintEnd, totalDays, remainingDays } = metrics;
 
   const elapsed = totalDays - remainingDays;
-  const pct = totalDays ? Math.round((elapsed / totalDays) * 100) : 0;
+  const pctElapsed = totalDays ? Math.min(100, Math.round((elapsed/totalDays)*100)) : 0;
 
-  /* ── Header ── */
-  const header = `
-<div class="header-bar">
+  /* ── Top bar ── */
+  const topbar = `
+<div class="topbar slide-up">
   <div class="brand">
     <div class="brand-logo">QA</div>
     <div>
       <div class="brand-name">QA Performance Dashboard</div>
-      <div class="brand-sub">Live data from Google Sheets · ${config.sheetName}</div>
+      <div class="brand-sub">Live · ALL TICKETS · ${SHEET_TAB}</div>
     </div>
   </div>
-  <div class="sprint-info">
-    <div><div class="sprint-label">Sprint</div><div class="sprint-value">${sprintName}</div></div>
-    <div><div class="sprint-label">Start</div><div class="sprint-value">${sprintStart || '—'}</div></div>
-    <div><div class="sprint-label">End</div><div class="sprint-value">${sprintEnd || '—'}</div></div>
-    <div style="min-width:100px">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-        <span style="font-size:11px;color:var(--text-muted)">${elapsed}d elapsed</span>
-        <span style="font-size:11px;color:var(--warn)">${remainingDays}d left</span>
+  <div class="sprint-meta">
+    <div class="meta-block"><div class="label">Sprint</div><div class="val">${sprintName}</div></div>
+    <div class="meta-block"><div class="label">Start</div><div class="val">${sprintStart||'—'}</div></div>
+    <div class="meta-block"><div class="label">End</div><div class="val">${sprintEnd||'—'}</div></div>
+    <div class="meta-block">
+      <div class="label" style="display:flex;justify-content:space-between;width:130px">
+        <span>${elapsed}d elapsed</span><span style="color:var(--warn)">${remainingDays}d left</span>
       </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="btn-secondary" onclick="document.getElementById('configOverlay').style.display='flex'">⚙ Reconnect</button>
-      <button class="btn-secondary" onclick="refreshData()">↺ Refresh</button>
+      <div class="progress-track" style="width:130px">
+        <div class="progress-fill" style="width:${pctElapsed}%"></div>
+      </div>
     </div>
   </div>
-</div>
-<div class="announce">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
-  Showing live data · ${total} tickets loaded · Last refreshed ${new Date().toLocaleTimeString()}
+  <div class="topbar-actions">
+    <div class="user-chip">
+      <div class="user-avatar">${currentUser.initials}</div>
+      <span>${currentUser.name}</span>
+    </div>
+    <button class="btn" onclick="loadDashboard()">↺ Refresh</button>
+    <button class="btn btn-danger" onclick="signOut()">Sign out</button>
+  </div>
+</div>`;
+
+  /* ── Announce ── */
+  const announce = `
+<div class="announce fade-in">
+  <div class="announce-dot"></div>
+  <span>Live data · ${total} tickets loaded · Last refreshed ${new Date().toLocaleTimeString()}</span>
 </div>`;
 
   /* ── KPIs ── */
-  const kpiCards = kpis.map(k => `
-<div class="kpi-card ${k.color}">
+  const kpiHtml = kpis.map((k,i) => `
+<div class="kpi ${k.color} slide-up" style="animation-delay:${i*0.04}s">
   <div class="kpi-label">${k.label}</div>
   <div class="kpi-value">${k.value}</div>
   <div class="kpi-sub">${k.sub}</div>
 </div>`).join('');
+
   const kpiSection = `
 <div>
-  <div class="section-label">Sprint metrics</div>
-  <div class="grid-auto">${kpiCards}</div>
+  <div class="section-label">Sprint Metrics</div>
+  <div class="grid-auto">${kpiHtml}</div>
 </div>`;
 
-  /* ── Priority + Milestones ── */
-  const maxBug = Math.max(...priorityCounts.map(r => r.bugs), 1);
-  const priRows = priorityCounts.map(r => {
-    const bw = Math.round((r.bugs / maxBug) * 100);
-    const uw = Math.round((r.usability / maxBug) * 100);
-    const pcls = r.label.toLowerCase().startsWith('urg') ? 'p-urg'
-               : r.label.toLowerCase().startsWith('high') ? 'p-high'
-               : r.label.toLowerCase().startsWith('med') ? 'p-med' : 'p-low';
-    return `<tr style="display:grid;grid-template-columns:100px 1fr 1fr 50px 50px;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid rgba(42,47,66,0.4)">
-      <td style="text-align:left;font-family:var(--mono);font-size:11px;padding:0;border:none"><span class="priority-label ${pcls}">${r.label}</span></td>
-      <td style="padding:0;border:none"><div class="bar-track"><div class="bar-fill" style="width:${bw}%;background:var(--warn)"></div></div></td>
-      <td style="padding:0;border:none"><div class="bar-track"><div class="bar-fill" style="width:${uw}%;background:var(--accent)"></div></div></td>
-      <td style="text-align:right;font-family:var(--mono);font-size:11px;color:var(--warn);padding:0;border:none">${n(r.bugs)}</td>
-      <td style="text-align:right;font-family:var(--mono);font-size:11px;color:var(--accent);padding:0;border:none">${n(r.usability)}</td>
-    </tr>`;
+  /* ── Priority matrix ── */
+  const maxBug = Math.max(...priorityCounts.map(r=>r.bugs), 1);
+  const matrixRows = priorityCounts.map(r => {
+    const bw = Math.round((r.bugs/maxBug)*100);
+    const uw = Math.round((r.usability/maxBug)*100);
+    return `
+<div class="matrix-row">
+  <div><span class="p-tag ${priClass(r.label)}">${r.label}</span></div>
+  <div><div class="bar-track"><div class="bar-fill" style="width:${bw}%;background:var(--warn)"></div></div></div>
+  <div><div class="bar-track"><div class="bar-fill" style="width:${uw}%;background:var(--accent)"></div></div></div>
+  <div style="text-align:right;font-family:var(--mono);font-size:11px;color:var(--warn)">${n(r.bugs)}</div>
+  <div style="text-align:right;font-family:var(--mono);font-size:11px;color:var(--accent)">${n(r.usability)}</div>
+</div>`;
   }).join('');
-  const totalBugs = priorityCounts.reduce((s,r) => s+r.bugs, 0);
-  const totalUsab = priorityCounts.reduce((s,r) => s+r.usability, 0);
 
+  const totalBugs = priorityCounts.reduce((s,r)=>s+r.bugs,0);
+  const totalUsab = priorityCounts.reduce((s,r)=>s+r.usability,0);
+
+  /* ── Milestones ── */
   const msRows = milestones.map(m => `
-    <tr>
-      <td>${m.name}</td>
-      <td>${n(m.open)}</td><td>${n(m.closed)}</td><td>${n(m.bugs)}</td><td>${n(m.usability)}</td>
-    </tr>`).join('');
+<tr>
+  <td>${m.name}</td>
+  <td>${n(m.open)}</td><td>${n(m.closed)}</td>
+  <td>${n(m.bugs)}</td><td>${n(m.usability)}</td>
+</tr>`).join('');
 
   const prioritySection = `
 <div class="grid-2">
   <div class="card">
-    <div class="card-title">Bug vs Usability by Priority</div>
-    <div style="display:flex;gap:16px;margin-bottom:10px">
-      <span style="font-size:11px;color:var(--warn)">■ Bug</span>
-      <span style="font-size:11px;color:var(--accent)">■ Usability</span>
+    <div class="card-title">Bug vs Usability by Priority × Severity</div>
+    <div style="display:flex;gap:16px;margin-bottom:14px">
+      <span style="font-size:11px;color:var(--warn);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--warn);display:inline-block"></span>Bug</span>
+      <span style="font-size:11px;color:var(--accent);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></span>Usability</span>
     </div>
-    <table style="width:100%;border-collapse:collapse">
-      <tbody>${priRows}</tbody>
-      <tfoot><tr>
-        <td style="text-align:left;font-size:11px;color:var(--text-dim);padding:8px 0 0">Total</td>
-        <td></td><td></td>
-        <td style="text-align:right;font-size:12px;font-family:var(--mono);color:var(--warn);padding:8px 0 0">${totalBugs}</td>
-        <td style="text-align:right;font-size:12px;font-family:var(--mono);color:var(--accent);padding:8px 0 0">${totalUsab}</td>
-      </tr></tfoot>
-    </table>
+    <div style="display:grid;grid-template-columns:110px 1fr 1fr 44px 44px;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:4px">
+      <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Priority</div>
+      <div style="font-size:10px;color:var(--warn);text-transform:uppercase;letter-spacing:0.08em">Bug</div>
+      <div style="font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em">Usab.</div>
+      <div></div><div></div>
+    </div>
+    ${matrixRows}
+    <div style="display:grid;grid-template-columns:110px 1fr 1fr 44px 44px;gap:8px;padding-top:10px;border-top:1px solid var(--border-bright);margin-top:4px">
+      <div style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em">Total</div>
+      <div></div><div></div>
+      <div style="text-align:right;font-family:var(--mono);font-size:12px;color:var(--warn);font-weight:500">${totalBugs}</div>
+      <div style="text-align:right;font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:500">${totalUsab}</div>
+    </div>
   </div>
   <div class="card">
     <div class="card-title">Milestones — Open vs Closed</div>
@@ -675,12 +984,16 @@ function renderDashboard(metrics, config) {
   </div>
 </div>`;
 
-  /* ── Members ── */
+  /* ── Members table ── */
   const memberRows = members.map(m => {
     const av = avatarColor(m.name);
     return `<tr>
-      <td><div class="member-cell"><div class="avatar" style="background:${av}22;color:${av}">${initials(m.name)}</div><span style="font-size:12px">${m.name}</span></div></td>
-      <td>${n(m.bug)}</td><td>${n(m.usability)}</td><td>${n(m.bugReview)}</td><td>${n(m.reopen)}</td>
+      <td><div class="member-cell">
+        <div class="avatar" style="background:${av}22;color:${av}">${initials(m.name)}</div>
+        <span style="font-size:12px">${m.name}</span>
+      </div></td>
+      <td>${n(m.bug)}</td><td>${n(m.usability)}</td>
+      <td>${n(m.bugReview)}</td><td>${n(m.reopen)}</td>
       <td>${n(m.testCase)}</td><td>${n(m.closed)}</td>
       <td style="color:var(--low)">${n(m.low)}</td>
       <td style="color:var(--med)">${n(m.med)}</td>
@@ -689,6 +1002,7 @@ function renderDashboard(metrics, config) {
       <td style="font-weight:500;color:var(--text)">${m.total}</td>
     </tr>`;
   }).join('');
+
   const t = memberTotals;
   const membersSection = `
 <div class="card">
@@ -708,75 +1022,77 @@ function renderDashboard(metrics, config) {
       <tbody>${memberRows}</tbody>
       <tfoot><tr>
         <td>Total</td>
-        <td>${t.bug||0}</td><td>${t.usability||0}</td><td>${t.bugReview||0}</td><td>${t.reopen||0}</td>
+        <td>${t.bug||0}</td><td>${t.usability||0}</td>
+        <td>${t.bugReview||0}</td><td>${t.reopen||0}</td>
         <td>${t.testCase||0}</td><td>${t.closed||0}</td>
-        <td>${t.low||0}</td><td>${t.med||0}</td><td>${t.high||0}</td><td>${t.urg||0}</td>
+        <td>${t.low||0}</td><td>${t.med||0}</td>
+        <td>${t.high||0}</td><td>${t.urg||0}</td>
         <td>${t.total||0}</td>
       </tr></tfoot>
     </table>
   </div>
 </div>`;
 
-  /* ── Charts + Top Priority ── */
-  const maxR = Math.max(...reporters.map(r => r.total), 1);
-  const reporterBars = reporters.map((r, i) => {
-    const w = Math.round((r.total / maxR) * 100);
+  /* ── Charts row ── */
+  const maxR = Math.max(...reporters.map(r=>r.total), 1);
+  const repBars = reporters.map((r,i) => {
+    const w = Math.round((r.total/maxR)*100);
     const col = AVATAR_COLORS[i % AVATAR_COLORS.length];
-    return `<div class="reporter-bar-row">
-      <div class="reporter-name">${r.name}</div>
-      <div class="bar-track" style="height:12px"><div class="bar-fill" style="width:${w}%;background:${col}"></div></div>
+    return `<div class="rep-row">
+      <div class="rep-name">${r.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${col}"></div></div>
       <div style="font-family:var(--mono);font-size:11px;color:var(--text-muted);text-align:right">${r.total}</div>
     </div>`;
   }).join('');
 
-  const dist_total = donut.reduce((s,d) => s+d.value, 0);
-  const legendItems = donut.map(d => `
-    <div class="legend-item">
-      <div class="legend-dot" style="background:${d.color}"></div>
-      <div style="flex:1;font-size:12px;color:var(--text-muted)">${d.label}</div>
-      <div style="font-family:var(--mono);font-size:12px;color:var(--text)">${d.value}</div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);min-width:40px;text-align:right">${d.pct}%</div>
-    </div>`).join('');
+  const distItems = donut.map(d => `
+<div class="dist-item">
+  <div class="dist-dot" style="background:${d.color}"></div>
+  <div class="dist-label">${d.label}</div>
+  <div class="dist-count">${d.value}</div>
+  <div class="dist-pct">${d.pct}%</div>
+</div>`).join('');
 
-  const urgItems = urgent.length ? urgent.map(i => `
-    <div class="issue-item">
-      <div class="issue-meta">
-        <span class="tag" style="background:${i.color}22;color:${i.color};border:1px solid ${i.color}44;font-size:10px;padding:2px 7px">${i.level}</span>
-      </div>
-      <div class="issue-title">${i.title}</div>
-      <div class="issue-path">${i.label}</div>
-    </div>`).join('')
-  : `<div style="font-size:12px;color:var(--text-dim);padding:16px 0">No urgent/high priority open tickets.</div>`;
+  const urgItems = urgent.length
+    ? urgent.map(i => `
+<div class="issue-item">
+  <div class="issue-meta">
+    <span class="p-tag" style="background:${i.color}22;color:${i.color};border:1px solid ${i.color}44">${i.level}</span>
+  </div>
+  <div class="issue-title">${i.title}</div>
+  <div class="issue-path">${i.label}</div>
+</div>`).join('')
+    : `<div style="font-size:12px;color:var(--text-dim);padding:16px 0">No urgent/high priority open tickets. 🎉</div>`;
 
   const chartsSection = `
 <div class="grid-3">
   <div class="card">
-    <div class="card-title">Top reporters</div>
-    ${reporterBars}
+    <div class="card-title">Top Reporters</div>
+    ${repBars}
   </div>
   <div class="card">
-    <div class="card-title">Output distribution</div>
-    <div class="donut-legend">${legendItems}</div>
-    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">
-        <span>Total tickets</span>
-        <span style="font-family:var(--mono);color:var(--text)">${dist_total}</span>
-      </div>
+    <div class="card-title">Output Distribution</div>
+    ${distItems}
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted)">
+      <span>Total tickets</span>
+      <span style="font-family:var(--mono);color:var(--text)">${donut.reduce((s,d)=>s+d.value,0)}</span>
     </div>
   </div>
   <div class="card">
-    <div class="card-title">Top priority issues</div>
+    <div class="card-title">Top Priority Issues</div>
     ${urgItems}
   </div>
 </div>`;
 
-  const footer = `<div style="text-align:center;padding:24px 0 8px;font-size:11px;color:var(--text-dim)">
-    QA Performance Dashboard · Live · ${config.sheetName} · ${new Date().toLocaleDateString()}
-  </div>`;
+  const footer = `
+<div style="text-align:center;padding:20px 0 8px;font-size:11px;color:var(--text-dim);position:relative;z-index:1">
+  QA Performance Dashboard · ${new Date().toLocaleDateString()} · ${currentUser.email}
+</div>`;
 
   document.getElementById('dashboardRoot').innerHTML = `
-<div class="dashboard">
-  ${header}
+<div class="dash">
+  ${topbar}
+  ${announce}
   ${kpiSection}
   ${prioritySection}
   ${membersSection}
@@ -785,65 +1101,57 @@ function renderDashboard(metrics, config) {
 </div>`;
 }
 
-/* ============================================================
+/* ══════════════════════════════════════════════════
    ORCHESTRATOR
-   ============================================================ */
-async function fetchAndRender(config) {
-  document.getElementById('configOverlay').style.display = 'none';
+══════════════════════════════════════════════════ */
+function setStatus(msg) {
+  document.getElementById('loadStatus').textContent = msg;
+}
+
+async function loadDashboard() {
+  document.getElementById('loginScreen').style.display   = 'none';
   document.getElementById('loadingScreen').style.display = 'flex';
   document.getElementById('dashboardRoot').style.display = 'none';
 
   try {
-    setLoading('Fetching sheet data…');
-    const rows = await fetchSheetData(config);
+    setStatus('Fetching ticket data from Google Sheets…');
+    const rows = await fetchSheetData();
 
     if (!rows || rows.length < 2) {
-      throw new Error('No data found. Check sheet name and range.');
+      throw new Error('No data found in ALL TICKETS tab.');
     }
 
-    setLoading(`Parsing ${rows.length - 1} ticket(s)…`);
+    setStatus(`Parsing ${rows.length - 1} ticket(s)…`);
     const tickets = parseTickets(rows);
 
     if (!tickets.length) {
-      throw new Error('Could not parse any tickets from the data. Check that row 3 contains the headers.');
+      throw new Error('Could not parse any tickets. Check that row 3 has the correct headers.');
     }
 
-    setLoading('Computing metrics…');
-    const metrics = computeMetrics(tickets, config.sprintName);
+    setStatus('Computing metrics…');
+    const metrics = computeMetrics(tickets);
 
-    setLoading('Rendering dashboard…');
+    setStatus('Rendering dashboard…');
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('dashboardRoot').style.display = 'block';
-    renderDashboard(metrics, config);
+    renderDashboard(metrics);
 
   } catch (err) {
     document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('configOverlay').style.display = 'flex';
-    showConfigError(err.message || String(err));
+    // If session expired, signOut() already redirected to login
+    if (accessToken) {
+      document.getElementById('dashboardRoot').innerHTML = `
+<div class="dash">
+  <div class="err-banner">⚠ ${err.message || String(err)}<br><br>
+    <button class="btn" onclick="loadDashboard()">↺ Retry</button>
+    <button class="btn btn-danger" onclick="signOut()" style="margin-left:8px">Sign out</button>
+  </div>
+</div>`;
+      document.getElementById('dashboardRoot').style.display = 'block';
+    }
     console.error(err);
   }
 }
-
-async function refreshData() {
-  const raw = sessionStorage.getItem(CONFIG_KEY);
-  if (!raw) return;
-  await fetchAndRender(JSON.parse(raw));
-}
-
-/* Auto-restore config from session */
-window.addEventListener('DOMContentLoaded', () => {
-  try {
-    const saved = sessionStorage.getItem(CONFIG_KEY);
-    if (saved) {
-      const c = JSON.parse(saved);
-      document.getElementById('apiKey').value = c.apiKey || '';
-      document.getElementById('spreadsheetId').value = c.spreadsheetId || '';
-      document.getElementById('sheetName').value = c.sheetName || 'ALL TICKETS';
-      document.getElementById('dataRange').value = c.dataRange || 'C3:T';
-      document.getElementById('sprintName').value = c.sprintName || '';
-    }
-  } catch(e) {}
-});
 </script>
 </body>
 </html>
