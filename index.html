@@ -150,8 +150,8 @@ body::after {
 .loader-sub  { font-size: 11px; color: var(--text-dim); }
 
 /* ── DASHBOARD ── */
-#dashboardRoot { display: none; position: relative; z-index: 1; }
-.dash { max-width: 1440px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 16px; }
+#dashboardRoot { display: none; position: relative; z-index: 1; overflow: visible; }
+.dash { max-width: 1440px; margin: 0 auto; padding: 24px 20px; display: grid; gap: 16px; overflow: visible; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
 .grid-2 > .card { height: 100%; }
 .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
@@ -200,6 +200,7 @@ body::after {
   border-radius: var(--r-lg); padding: 18px 24px;
   display: flex; align-items: center; justify-content: space-between;
   gap: 20px; flex-wrap: wrap;
+  position: relative; z-index: 100; overflow: visible;
 }
 .brand { display: flex; align-items: center; gap: 14px; }
 .brand-logo {
@@ -212,7 +213,7 @@ body::after {
 }
 .brand-name { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; font-family: var(--font-display); }
 .brand-sub  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-.sprint-meta { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.sprint-meta { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; overflow: visible; }
 .meta-block .label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-family: var(--font); }
 .meta-block .val   { font-size: 13px; font-weight: 500; margin-top: 2px; font-family: var(--font); }
 .progress-track { height: 5px; background: var(--surface2); border-radius: 3px; margin-top: 6px; width: 120px; overflow: hidden; }
@@ -577,6 +578,7 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
 ══════════════════════════════════ */
 .sprint-dropdown-wrap {
   position: relative;
+  z-index: 1000;
 }
 .sprint-select-btn {
   display: flex; align-items: center; gap: 8px;
@@ -603,8 +605,8 @@ tfoot td:first-child { text-align: left; font-size: 10px; text-transform: upperc
   min-width: 280px; max-height: 340px; overflow-y: auto;
   background: var(--surface2); border: 1px solid var(--border-bright);
   border-radius: var(--r-lg);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(91,143,255,0.06);
-  z-index: 200; animation: dropIn 0.18s ease both;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px rgba(91,143,255,0.12);
+  z-index: 9999; animation: dropIn 0.18s ease both;
   scrollbar-width: thin; scrollbar-color: var(--border-bright) transparent;
 }
 .sprint-dropdown-menu.open { display: block; }
@@ -1618,12 +1620,15 @@ async function loadDashboard() {
     setStatus('Fetching sprint timelines…');
     _sprints = await fetchTimelines();
 
-    /* 2. Auto-select the current sprint (most recent one whose end date >= today),
-          or fall back to the last sprint in the list */
+    /* 2. Reverse so the last row in the sheet (latest sprint) appears first in the dropdown */
+    _sprints.reverse();
+
+    /* 3. Auto-select: first sprint whose end date >= today (i.e. still active),
+          or fall back to the very first item (which is now the latest sprint) */
     if (_sprints.length) {
       const now = new Date();
       const current = _sprints.find(s => s.endDate && s.endDate >= now);
-      _selectedSprint = current || _sprints[_sprints.length - 1];
+      _selectedSprint = current || _sprints[0];
     }
 
     /* 3. Fetch all tickets */
