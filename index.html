@@ -723,7 +723,8 @@ function computeMetrics(tickets) {
   }
   const milestones = Object.entries(msMap)
     .map(([name,v]) => ({name,...v}))
-    .sort((a,b) => (b.open+b.closed)-(a.open+a.closed));
+    .sort((a,b) => (b.open+b.closed)-(a.open+a.closed))
+    .slice(0, 10);
   const msTotal = milestones.reduce((acc,m) => ({
     open:    acc.open+m.open,
     closed:  acc.closed+m.closed,
