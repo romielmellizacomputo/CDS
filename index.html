@@ -930,6 +930,7 @@ function getFilteredMembers() {
   return list;
 }
 
+
 function hasActiveFilters() {
   return _activeFilters.types.length > 0 || _activeFilters.priorities.length > 0;
 }
@@ -969,7 +970,7 @@ function filterOptionHTML(value, label, color, field, count) {
 
 function renderMembersSection() {
   const filtered = getFilteredMembers();
-  const shown    = filtered.slice(0, PAGE_SIZE);
+  const shown    = filtered;
   const total    = _allMembers.length;
   const active   = hasActiveFilters();
   const t        = _memberTotals;
@@ -1118,10 +1119,10 @@ function renderMembersSection() {
 
   <div class="members-footer-meta">
     <span class="members-showing" id="membersShowing">
-      Showing ${shown.length} of ${filtered.length}${filtered.length < total ? ` filtered` : ''} member${filtered.length===1?'':'s'}${filtered.length < total ? ` (${total} total)` : ''}
-      ${shown.length < filtered.length ? ` · <span style="color:var(--accent)">scroll to see all</span>` : ''}
+      ${filtered.length < total ? `Showing ${filtered.length} of ${total} members (filtered)` : `${total} member${total===1?'':\'s\'} total`}
+      ${filtered.length > 10 ? ` &middot; <span style="color:var(--accent)">scroll to see all</span>` : \'\'}
     </span>
-    ${active || _searchQuery ? `<span style="font-size:11px;color:var(--accent);cursor:pointer" onclick="clearAllFilters();onMembersSearch('')">✕ Clear filters</span>` : ''}
+    ${active || _searchQuery ? `<span style="font-size:11px;color:var(--accent);cursor:pointer" onclick="clearAllFilters();onMembersSearch(\'\')">&#x2715; Clear filters</span>` : \'\'}
   </div>
 </div>`;
 
