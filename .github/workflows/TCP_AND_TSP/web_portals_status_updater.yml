@@ -1,0 +1,33 @@
+name: WEB Portals Status Updater
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */3 * * *'
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout Private Repo (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install google-api-python-client
+          pip install pytz
+          pip install requests
+      - name: Run web_portals_status_updater.py
+        run: python WEB_PORTALS/web_portals_status_updater.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          CDS_AP_001_SERVICE_ACCOUNT_JSON: ${{ secrets.CDS_AP_001_SERVICE_ACCOUNT_JSON }}
+          WEB_TC_DB_SID: ${{ secrets.WEB_TC_DB_SID }}
+          WEB_TS_DB_SID: ${{ secrets.WEB_TS_DB_SID }}
+          SHEET_SYNC_SID: ${{ secrets.SHEET_SYNC_SID }}
