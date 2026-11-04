@@ -1,0 +1,67 @@
+name: GitLab Activity Sync
+# Pipelines, failed jobs, deployments, commits, releases and activity
+# -> "GitLab Activity Sync" Google Sheet. Separate from SheetSync.
+on:
+  schedule:
+    - cron: '23 * * * *'  # Every hour at :23 (avoids the busy top of the hour)
+  workflow_dispatch:
+    inputs:
+      datasets:
+        description: 'Only these tabs (comma list: activity,pipelines,failed_jobs,deployments,commits,releases). Empty = all'
+        required: false
+        default: ''
+      lookback_days:
+        description: 'First-run window in days (only used when a tab has no saved sync time)'
+        required: false
+        default: '30'
+      dry_run:
+        description: 'Fetch and count only, write nothing'
+        type: boolean
+        default: false
+
+# Never run two syncs at once; a new one waits for the previous to finish.
+concurrency:
+  group: gitlab-activity-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout Private Repo (centralized-docs-system)
+        uses: actions/checkout@v4
+        with:
+          repository: romielmellizacomputo/centralized-docs-system
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          cd GitLabActivity
+          npm install --no-audit --no-fund
+
+      - name: Run GitLab Activity Sync
+        env:
+          GITLAB_URL: ${{ secrets.GITLAB_URL }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          PROJECT_CONFIG: ${{ secrets.PROJECT_CONFIG }}
+          SHEET_SYNC_SAJ: ${{ secrets.SHEET_SYNC_SAJ }}
+          GITLAB_ACTIVITY_SID: ${{ secrets.GITLAB_ACTIVITY_SID }}
+          ONLY_DATASETS: ${{ inputs.datasets }}
+          LOOKBACK_DAYS: ${{ inputs.lookback_days || '30' }}
+          DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+        run: |
+          if [ -z "$GITLAB_ACTIVITY_SID" ]; then
+            echo "::notice::GITLAB_ACTIVITY_SID secret is not set yet - skipping. Add it in CDS > Settings > Secrets and variables > Actions."
+            exit 0
+          fi
+          cd GitLabActivity
+          node sync.js
